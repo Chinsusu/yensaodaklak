@@ -128,7 +128,6 @@ app.get("/", async (c) => {
           }
         }
       }, true);
-</script>
   `;
   
   // Inject script before closing body tag
