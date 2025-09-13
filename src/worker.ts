@@ -145,7 +145,7 @@ app.get("/product/:slug", async (c) => {
   function convertImageUrl(url) {
     if (!url) return url
     // Convert /api/admin/proxy/products%2Ffile.webp to /media/products/file.webp
-    return url.replace(/^/api/admin/proxy/(.*)$/, (match, encodedPath) => {
+    return url.replace(/^\/api\/admin\/proxy\/(.*)$/, (match, encodedPath) => {
       const decodedPath = decodeURIComponent(encodedPath)
       return `/media/${decodedPath}`
     })
