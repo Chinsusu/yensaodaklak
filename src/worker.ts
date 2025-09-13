@@ -44,6 +44,48 @@ app.get("/", async (c) => {
   // Inject product navigation script before closing </body> tag
   const scriptToInject = `
     <script>
+    (function(){
+      function normalize(s){
+        return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+      }
+      const map = new Map([
+        ['yen chung hu 70 ml','yen-chung-hu-70ml'],
+        ['yen chung hu 70ml','yen-chung-hu-70ml'],
+        ['yen chung hu 70','yen-chung-hu-70ml'],
+        ['yen chung hu 100 ml','yen-chung-hu-100ml'],
+        ['yen chung hu 100ml','yen-chung-hu-100ml'],
+        ['yen chung hu 100','yen-chung-hu-100ml'],
+        ['yen tinh sach 50 g','yen-tinh-sach-50g'],
+        ['yen tinh sach 50g','yen-tinh-sach-50g'],
+        ['yen tho 100 g','yen-tho-100g'],
+        ['yen tho 100g','yen-tho-100g'],
+        ['combo qua tang','combo-qua-tang'],
+        ['set dung thu','set-dung-thu']
+      ]);
+      function guessSlugFromText(text){
+        const t = normalize(text);
+        for(const [k,v] of map){ if(t.includes(k)) return v; }
+        return null;
+      }
+      function findContainer(el, max=6){
+        let e=el, d=0; while(e && d<max){ if(e.matches && (e.matches('.product-card, article, .card, .grid > div') || e.getAttribute('onclick'))) return e; e=e.parentElement; d++; } return el;
+      }
+      document.addEventListener('click', function(ev){
+        const target = ev.target; if(!(target instanceof Element)) return;
+        const txtNorm = normalize(target.textContent||'');
+        if(txtNorm==='them' || txtNorm==='them vao gio') return; // ignore cart buttons
+        const nearText = (target.closest('[onclick]')?.textContent || '') + ' ' + (findContainer(target).innerText || '');
+        const slug = guessSlugFromText(nearText);
+        if(!slug) return;
+        ev.preventDefault(); ev.stopPropagation();
+        try{ if(typeof gtag!=='undefined'){ gtag('event','select_item',{ item_list_id:'homepage_products', items:[{ item_id: slug }] }); } }catch(e){}
+        window.location.href = '/product/' + slug;
+      }, true);
+      console.log('[yensao] click enhancer active');
+    })();
+    </script>
+`
+  ; <script>
     // Robust product click handler with event delegation (works with dynamic content)
     (function(){
       const productSlugs = {
