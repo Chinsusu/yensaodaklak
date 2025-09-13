@@ -44,8 +44,8 @@ app.get("/", async (c) => {
   // Inject product navigation script before closing </body> tag
   const scriptToInject = `
     <script>
-    // Product click functionality
-    document.addEventListener('DOMContentLoaded', function() {
+    // Robust product click handler with event delegation (works with dynamic content)
+    (function(){
       const productSlugs = {
         'Yến chưng hũ 70 ml': 'yen-chung-hu-70ml',
         'Yến chưng hũ 100 ml': 'yen-chung-hu-100ml', 
@@ -56,54 +56,37 @@ app.get("/", async (c) => {
       };
       
       // Find product elements by onclick attributes (existing GA4 tracking)
-      const productElements = document.querySelectorAll('[onclick*="gtag"]');
-      console.log('Found', productElements.length, 'product elements');
-      
-      productElements.forEach(element => {
-        const text = element.textContent || '';
-        let slug = null;
-        
-        // Match product by name
-        Object.keys(productSlugs).forEach(name => {
-          if (text.includes(name)) {
-            slug = productSlugs[name];
-          }
-        });
-        
-        if (slug) {
-          // Add click handler
-          element.style.cursor = 'pointer';
-          element.style.transition = 'all 0.2s ease';
-          
-          // Store original onclick
-          const originalOnclick = element.onclick;
-          
-          element.onclick = function(e) {
-            // Execute original GA4 tracking
-            if (originalOnclick) originalOnclick.call(this, e);
-            
-            // Navigate to product page
-            setTimeout(() => {
-              window.location.href = '/product/' + slug;
-            }, 100);
-          };
-          
-          // Add hover effect
-          element.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.02)';
-            this.style.boxShadow = '0 4px 12px rgba(200, 161, 90, 0.2)';
-          });
-          
-          element.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = '';
-          });
-          
-          console.log('Enhanced product:', text.substring(0, 30) + '... -> /product/' + slug);
+      function matchSlugFromText(text){
+        if(!text) return null;
+        for(const name in productSlugs){
+          if(text.indexOf(name) !== -1) return productSlugs[name];
         }
-      });
-    });
-    </script>
+        return null;
+      }
+
+      function findSlugFromNode(node){
+        let el = node;
+        let depth = 0;
+        while(el and depth < 6): pass
+      }
+    })();
+    
+      document.addEventListener('click', function(e){
+        const t = e.target;
+        if(!(t instanceof Element)) return;
+        const text = (t.closest('[onclick]')?.textContent || t.textContent || '').trim();
+        const names = Object.keys(productSlugs);
+        for(const name of names){
+          if(text.indexOf(name) !== -1){
+            e.preventDefault(); e.stopPropagation();
+            const slug = productSlugs[name];
+            try{ if(typeof gtag !== 'undefined'){ gtag('event','select_item',{ item_list_id:'homepage_products', items:[{ item_id: slug }]}); } }catch(err){}
+            window.location.href = '/product/' + slug;
+            break;
+          }
+        }
+      }, true);
+</script>
   `;
   
   // Inject script before closing body tag
