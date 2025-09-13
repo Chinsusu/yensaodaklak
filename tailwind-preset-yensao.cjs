@@ -16,20 +16,12 @@ module.exports = {
         body: ['"Be Vietnam Pro"', "system-ui", "Arial", "sans-serif"],
       },
       borderRadius: {
-        'xl': "16px",
-        'lg': "10px",
+        xl: "16px",
+        lg: "10px",
       },
       boxShadow: {
         sm: "0 2px 6px rgba(0,0,0,.08)",
         DEFAULT: "0 8px 24px rgba(0,0,0,.12)",
-      },
-      spacing: {
-        '1': "4px",
-        '2': "8px",
-        '3': "12px",
-        '4': "16px",
-        '5': "20px",
-        '6': "24px",
       }
     }
   }
