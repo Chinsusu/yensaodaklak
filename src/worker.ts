@@ -249,6 +249,17 @@ app.get("/admin/", async (c) => {
 
 // Serve static assets (HTML, CSS, JS, images) - this should be LAST
 app.get("*", async (c) => {
+  const url = new URL(c.req.url)
+  if (url.pathname === '/') {
+    // Serve index.html with injected navigation script and no-store
+    const res = await c.env.ASSETS.fetch(new Request(new URL('/index.html', url).toString()))
+    let html = await res.text()
+    const scriptTag = '<script src="/product-navigation.js"></script>'
+    const marker = /<\/body\s*>/i
+    if (marker.test(html)) html = html.replace(marker, scriptTag + '</body>')
+    else html = html + scriptTag
+    return new Response(html, { headers: { 'Content-Type': 'text/html; charset=UTF-8', 'Cache-Control': 'no-store', 'X-Yensao-Injected': 'static-script' } })
+  }
   return c.env.ASSETS.fetch(c.req.raw)
 })
 
