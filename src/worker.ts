@@ -92,7 +92,16 @@ app.get("/", async (c) => {
 // Handle admin UI specifically
 app.get("/admin", async (c) => {
   const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
-  return adminHtml
+  const response = new Response(adminHtml.body, {
+    headers: {
+      ...Object.fromEntries(adminHtml.headers),
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    }
+  })
+  return response
+})
 })
 
 // Product detail page route
@@ -209,7 +218,16 @@ app.get("/product/:slug", async (c) => {
 
 app.get("/admin/", async (c) => {
   const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
-  return adminHtml
+  const response = new Response(adminHtml.body, {
+    headers: {
+      ...Object.fromEntries(adminHtml.headers),
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    }
+  })
+  return response
+})
 })
 
 
