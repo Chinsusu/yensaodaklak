@@ -249,7 +249,7 @@ app.get("/admin/", async (c) => {
 
 
 // Serve product-navigation.js
-app.get("/product-navigation.js?v=2", async (c) => {
+app.get("/product-navigation.js?v=3", async (c) => {
   const script = `// Product navigation for homepage
 document.addEventListener("DOMContentLoaded", function() {
   console.log("[yensao] product navigation script loaded");
@@ -315,11 +315,11 @@ app.get("*", async (c) => {
     // Serve index.html with injected navigation script and no-store
     const res = await c.env.ASSETS.fetch(new Request(new URL('/index.html', url).toString()))
     let html = await res.text()
-    const scriptTag = '<script src="/product-navigation.js?v=2"></script>'
+    const scriptTag = '<script src="/product-navigation.js?v=3"></script>'
     const marker = /<\/body\s*>/i
     if (marker.test(html)) html = html.replace(marker, scriptTag + '</body>')
     else html = html + scriptTag
-    return new Response(html, { headers: { 'Content-Type': 'text/html; charset=UTF-8', 'Cache-Control': 'no-store', 'X-Yensao-Injected': 'static-script' } })
+    return new Response(html, { headers: { 'Content-Type': 'text/html; charset=UTF-8', 'Cache-Control': 'no-store', 'X-Yensao-Injected': 'static-script', 'X-Debug': 'v3-homepage' } })
   }
   return c.env.ASSETS.fetch(c.req.raw)
 })
