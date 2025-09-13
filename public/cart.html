@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <!-- CSS từ homepage -->
+    <link rel="stylesheet" href="/tokens.css">
+    <link rel="stylesheet" href="/styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giỏ hàng - Yến Sào Đăk Lăk</title>
@@ -379,17 +382,14 @@
 
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="/" class="logo">🥄 Yến Sào Đăk Lăk</a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="/">Trang chủ</a></li>
-                    <li><a href="/products">Sản phẩm</a></li>
-                    <li><a href="/about">Về chúng tôi</a></li>
-                    <li><a href="/contact">Liên hệ</a></li>
-                </ul>
-            </nav>
+    <!-- Header giống homepage -->
+    <header class="sticky top-0 z-50 bg-ivory/90 backdrop-blur border-b border-muted/20">
+        <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+            <button aria-label="Tìm kiếm" class="w-11 h-11 rounded-lg border border-muted/30 hover:bg-white/60" onclick="gtag('event', 'search_open')">🔎</button>
+            <a href="/" class="font-heading text-xl md:text-2xl text-espresso">YẾN SÀO</a>
+            <a href="/cart" class="relative w-11 h-11 rounded-lg border border-muted/30 hover:bg-white/60 flex items-center justify-center" aria-label="Giỏ hàng">
+                🛒<span class="absolute -top-1 -right-1 bg-gold text-white text-xs font-medium px-1.5 py-0.5 rounded-full" data-cart-count>0</span>
+            </a>
         </div>
     </header>
 

@@ -105,11 +105,12 @@ app.get("/product/:slug", async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${product.name} - Yến Sào Đăk Lăk</title>
+      <!-- CSS từ homepage -->
+      <link rel="stylesheet" href="/tokens.css">
       <link rel="stylesheet" href="/styles.css">
       <style>
         body { font-family: "Be Vietnam Pro", sans-serif; background: #faf7f0; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .product-detail { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .product-detail { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
         .price { font-size: 24px; color: #C8A15A; font-weight: bold; margin: 16px 0; }
         .btn { background: #C8A15A; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; }
         .btn:hover { background: #b8925a; }
@@ -137,8 +138,23 @@ app.get("/product/:slug", async (c) => {
       </style>
     </head>
     <body>
-      <div class="container">
-        <a href="/" class="back-link">← Quay lại trang chủ</a>
+      <!-- Header giống homepage -->
+      <header class="sticky top-0 z-50 bg-ivory/90 backdrop-blur border-b border-muted/20">
+        <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+          <button aria-label="Tìm kiếm" class="w-11 h-11 rounded-lg border border-muted/30 hover:bg-white/60" onclick="gtag('event', 'search_open')">🔎</button>
+          <a href="/" class="font-heading text-xl md:text-2xl text-espresso">YẾN SÀO</a>
+          <a href="/cart" class="relative w-11 h-11 rounded-lg border border-muted/30 hover:bg-white/60 flex items-center justify-center" aria-label="Giỏ hàng">
+            🛒<span class="absolute -top-1 -right-1 bg-gold text-white text-xs font-medium px-1.5 py-0.5 rounded-full" data-cart-count>0</span>
+          </a>
+        </div>
+      </header>
+      
+      <!-- Main content -->
+      <div class="mx-auto max-w-6xl px-4 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+          <a href="/" class="text-sm text-espresso/70 hover:text-espresso">← Quay lại trang chủ</a>
+        </nav>
         
         <div class="product-detail">
           ${product.images && product.images[0] ? 
@@ -301,6 +317,7 @@ app.get("/product/:slug", async (c) => {
         }
       });
     </script>
+      </div> <!-- end main content -->
     </body>
     </html>
   `
