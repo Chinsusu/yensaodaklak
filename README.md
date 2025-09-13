@@ -17,6 +17,12 @@ npm run deploy
 > Repo KHÔNG kèm `package-lock.json` để tránh xung đột khoá. Nếu muốn dùng `npm ci`, hãy chạy `npm install` local để sinh lock và commit.
 
 
+[![Docs TOC](https://github.com/Chinsusu/yensaodaklak/actions/workflows/docs-toc.yml/badge.svg)](https://github.com/Chinsusu/yensaodaklak/actions/workflows/docs-toc.yml)
+
+
+
+
+
 <!-- DOCS_TOC:START -->
 ## Mục lục
 - yensao-branding-uiux-pack

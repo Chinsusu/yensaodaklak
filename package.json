@@ -7,7 +7,8 @@
     "dev": "wrangler dev",
     "build:css": "tailwindcss -i src/app.css -o public/styles.css --minify",
     "build": "npm run build:css",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "docs:toc": "bash scripts/generate_docs_toc.sh"
   },
   "dependencies": {
     "hono": "^4.6.10"
