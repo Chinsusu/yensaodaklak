@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin Yến Sào</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body{background:#faf7f0}
+    .card{background:#fff;border:1px solid #eee;border-radius:14px;padding:14px}
+    .grid{display:grid;gap:12px}
+    input,textarea,select{border:1px solid #ddd;border-radius:12px;padding:10px;width:100%}
+    button{border-radius:12px;padding:10px 14px}
+    .btn{background:#C8A15A;color:#fff}
+    .btn-outline{background:#fff;border:1px solid #C8A15A;color:#4B3A2B}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #eee;padding:8px;text-align:left}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+  </style>
+</head>
+<body class="p-4">
+  <div id="app" class="grid max-w-5xl mx-auto"></div>
+
+<script>
+const $ = (s,ctx=document)=>ctx.querySelector(s);
+const $$ = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
+
+async function api(path, opts={}){
+  const res = await fetch('/api/admin'+path, {credentials:'include', ...opts});
+  if(!res.ok){ const t = await res.json().catch(()=>({})); throw new Error(t.error||res.statusText); }
+  return res.json();
+}
+
+function viewLogin(){
+  app.innerHTML = `
+    <div class="card">
+      <h2>Đăng nhập</h2>
+      <div class="row">
+        <input id="password" type="password" placeholder="Mật khẩu admin">
+        <button class="btn" id="btnLogin">Đăng nhập</button>
+      </div>
+      <p class="text-sm text-gray">Mặc định: <code>Calomam@12</code> (nên đổi bằng secret <b>ADMIN_PASSWORD</b>).</p>
+    </div>`;
+  $('#btnLogin').onclick = async ()=>{
+    const password = $('#password').value.trim();
+    try{
+      await api('/login', {method:'POST', body: new URLSearchParams({password})});
+      viewDashboard();
+    }catch(e){ alert(e.message); }
+  };
+}
+
+async function viewDashboard(){
+  try{ await api('/me'); }catch(e){ return viewLogin(); }
+
+  app.innerHTML = `
+  <div class="grid">
+    <div class="row">
+      <button class="btn" id="tabProds">Sản phẩm</button>
+      <button class="btn-outline" id="tabCats">Danh mục</button>
+      <button class="btn-outline" id="tabUpload">Upload ảnh</button>
+    </div>
+    <div id="panel" class="grid"></div>
+  </div>`;
+
+  $('#tabProds').onclick = renderProducts;
+  $('#tabCats').onclick = renderCats;
+  $('#tabUpload').onclick = renderUpload;
+  renderProducts();
+}
+
+async function renderCats(){
+  const {data} = await api('/categories');
+  $('#panel').innerHTML = `
+    <div class="card">
+      <h3>Thêm danh mục</h3>
+      <div class="row">
+        <input id="cat_name" placeholder="Tên">
+        <input id="cat_slug" placeholder="Slug (a-z-0-9)">
+        <button class="btn" id="cat_add">Thêm</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Danh sách</h3>
+      <table><thead><tr><th>ID</th><th>Tên</th><th>Slug</th><th></th></tr></thead>
+      <tbody id="cat_rows"></tbody></table>
+    </div>`;
+  const tbody = $('#cat_rows');
+  tbody.innerHTML = data.map(c=>`<tr>
+    <td>${c.id}</td><td><input data-id="${c.id}" data-k="name" value="${c.name}"></td>
+    <td><input data-id="${c.id}" data-k="slug" value="${c.slug}"></td>
+    <td><button data-del="${c.id}">Xoá</button> <button data-save="${c.id}" class="btn">Lưu</button></td>
+  </tr>`).join('');
+
+  $('#cat_add').onclick = async ()=>{
+    const name = $('#cat_name').value.trim();
+    const slug = $('#cat_slug').value.trim();
+    if(!name||!slug) return alert('Nhập đủ tên & slug');
+    await api('/categories', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, slug})});
+    renderCats();
+  };
+
+  tbody.addEventListener('click', async (e)=>{
+    const id = e.target.getAttribute('data-del') || e.target.getAttribute('data-save');
+    if(!id) return;
+    if(e.target.hasAttribute('data-del')){
+      if(confirm('Xoá?')){ await api('/categories/'+id, {method:'DELETE'}); renderCats(); }
+    }else{
+      const row = e.target.closest('tr');
+      const name = row.querySelector('input[data-k="name"]').value;
+      const slug = row.querySelector('input[data-k="slug"]').value;
+      await api('/categories/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, slug})});
+      alert('Đã lưu');
+    }
+  });
+}
+
+async function renderProducts(){
+  const {data} = await api('/products');
+  const cats = (await api('/categories')).data;
+  $('#panel').innerHTML = `
+  <div class="card">
+    <h3>Thêm sản phẩm</h3>
+    <div class="row">
+      <input id="p_name" placeholder="Tên">
+      <input id="p_slug" placeholder="Slug">
+      <input id="p_price" type="number" placeholder="Giá (VND)">
+      <select id="p_cat"><option value="">--Danh mục--</option>
+        ${cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+      </select>
+      <button class="btn" id="p_add">Thêm</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Danh sách</h3>
+    <table><thead><tr><th>ID</th><th>Tên</th><th>Slug</th><th>Giá</th><th>Ảnh</th><th></th></tr></thead>
+    <tbody id="prod_rows"></tbody></table>
+  </div>`;
+
+  const tbody = $('#prod_rows');
+  tbody.innerHTML = data.map(p=>`<tr>
+    <td>${p.id}</td>
+    <td><input data-id="${p.id}" data-k="name" value="${p.name}"></td>
+    <td><input data-id="${p.id}" data-k="slug" value="${p.slug}"></td>
+    <td><input data-id="${p.id}" data-k="price" type="number" value="${p.price||0}"></td>
+    <td>
+      <div>${(p.images||[]).map(u=>`<a href="${u}" target="_blank">ảnh</a>`).join(', ')}</div>
+      <input type="file" multiple accept="image/*" data-upload="${p.id}">
+    </td>
+    <td><button data-del="${p.id}">Xoá</button> <button data-save="${p.id}" class="btn">Lưu</button></td>
+  </tr>`).join('');
+
+  $('#p_add').onclick = async ()=>{
+    const body = {
+      name: $('#p_name').value.trim(),
+      slug: $('#p_slug').value.trim(),
+      price: Number($('#p_price').value||0),
+      category_id: Number($('#p_cat').value||0) || undefined
+    };
+    if(!body.name || !body.slug) return alert('Nhập đủ tên & slug');
+    await api('/products', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    renderProducts();
+  };
+
+  tbody.addEventListener('change', async (e)=>{
+    const id = e.target.getAttribute('data-upload');
+    if(!id) return;
+    const files = e.target.files;
+    const fd = new FormData();
+    for(const f of files) fd.append('files', f);
+    const res = await api('/upload', {method:'POST', body: fd});
+    const pro = data.find(x=>x.id==id);
+    pro.images = [...(pro.images||[]), ...res.files.map(x=>x.url)];
+    await api('/products/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({images: pro.images})});
+    renderProducts();
+  });
+
+  tbody.addEventListener('click', async (e)=>{
+    const id = e.target.getAttribute('data-del') || e.target.getAttribute('data-save');
+    if(!id) return;
+    if(e.target.hasAttribute('data-del')){
+      if(confirm('Xoá?')){ await api('/products/'+id, {method:'DELETE'}); renderProducts(); }
+    }else{
+      const row = e.target.closest('tr');
+      const body = {
+        name: row.querySelector('input[data-k="name"]').value,
+        slug: row.querySelector('input[data-k="slug"]').value,
+        price: Number(row.querySelector('input[data-k="price"]').value||0),
+      };
+      await api('/products/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      alert('Đã lưu');
+    }
+  });
+}
+
+function renderUpload(){
+  $('#panel').innerHTML = `
+    <div class="card">
+      <h3>Upload ảnh (R2)</h3>
+      <input id="files" type="file" multiple accept="image/*">
+      <button id="btnUp" class="btn">Upload</button>
+      <div id="result" class="row mt-2"></div>
+    </div>`;
+  $('#btnUp').onclick = async ()=>{
+    const fd = new FormData(); for(const f of $('#files').files) fd.append('files', f);
+    const res = await api('/upload', {method:'POST', body: fd});
+    $('#result').innerHTML = res.files.map(f=>`<a href="${f.url}" target="_blank">${f.key}</a>`).join('<br>');
+  };
+}
+
+const app = document.getElementById('app');
+viewDashboard();
+</script>
+</body>
+</html>
