@@ -116,6 +116,24 @@ app.get("/product/:slug", async (c) => {
         .back-link { color: #666; text-decoration: none; margin-bottom: 20px; display: inline-block; }
         .back-link:hover { color: #C8A15A; }
         .product-image { width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+        
+        /* Add to cart section styles */
+        .quantity-btn:hover { background: #e0e0e0 !important; }
+        .add-to-cart-btn:hover { background: #b8925a !important; }
+        
+        /* Mobile responsive */
+        @media (max-width: 640px) {
+          .container { padding: 10px; }
+          div[style*="grid-template-columns: 1fr 1fr"] {
+            display: block !important;
+          }
+          div[style*="grid-template-columns: 1fr 1fr"] > * {
+            margin-bottom: 12px !important;
+          }
+          div[style*="grid-template-columns: 1fr 1fr"] > *:last-child {
+            margin-bottom: 0 !important;
+          }
+        }
       </style>
     </head>
     <body>
@@ -133,8 +151,29 @@ app.get("/product/:slug", async (c) => {
           
           <p style="color: #666; font-size: 16px;">${product.long_desc || product.desc || ""}</p>
           
-          <div style="margin-top: 24px;">
-            <a href="tel:1900xxxx" class="btn">📞 Liên hệ đặt hàng</a>
+          <!-- Add to cart section -->
+          <div style="margin-top: 32px; padding: 20px; background: #faf7f0; border-radius: 12px; border: 1px solid #e5e5e5;">
+            <div style="margin-bottom: 20px;">
+              <label style="font-weight: 500; color: #4B3A2B; margin-bottom: 8px; display: block;">Số lượng:</label>
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <button class="quantity-btn" onclick="changeQuantity(-1)" style="background: #f5f5f5; border: none; width: 40px; height: 40px; border-radius: 6px; cursor: pointer; font-size: 18px;">−</button>
+                <input type="number" id="quantity" value="1" min="1" max="99" style="width: 60px; height: 40px; text-align: center; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                <button class="quantity-btn" onclick="changeQuantity(1)" style="background: #f5f5f5; border: none; width: 40px; height: 40px; border-radius: 6px; cursor: pointer; font-size: 18px;">+</button>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <button 
+                class="add-to-cart-btn" 
+                data-product-id="${product.slug}"
+                data-product-name="${product.name}"
+                data-product-price="${product.price}"
+                data-product-image="/media/${product.slug}.jpg"
+                onclick="addToCartWithQuantity(this)"
+                style="background: #C8A15A; color: white; padding: 12px 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.3s;">🛒 Thêm vào giỏ</button>
+              
+              <a href="tel:1900xxxx" class="btn" style="background: white; color: #4B3A2B; padding: 12px 16px; border: 1px solid #C8A15A; border-radius: 8px; font-size: 16px; font-weight: 500; text-decoration: none; text-align: center; transition: background 0.3s;">📞 Liên hệ</a>
+            </div>
           </div>
           
           <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee;">
@@ -148,6 +187,120 @@ app.get("/product/:slug", async (c) => {
           </div>
         </div>
       </div>
+    
+    <!-- Cart Scripts -->
+    <script src="/js/cart.js"></script>
+    <script src="/js/cart-ui.js"></script>
+    
+    <!-- Product Page JavaScript -->
+    <script>
+      // Change quantity function
+      function changeQuantity(delta) {
+        const quantityInput = document.getElementById("quantity");
+        let currentValue = parseInt(quantityInput.value) || 1;
+        let newValue = currentValue + delta;
+        
+        if (newValue < 1) newValue = 1;
+        if (newValue > 99) newValue = 99;
+        
+        quantityInput.value = newValue;
+      }
+      
+      // Add to cart with quantity
+      function addToCartWithQuantity(button) {
+        if (!window.yenSaoCart) {
+          console.warn("Cart not initialized yet");
+          alert("Giỏ hàng chưa sẵn sàng, vui lòng thử lại sau.");
+          return;
+        }
+        
+        const quantity = parseInt(document.getElementById("quantity").value) || 1;
+        const productData = {
+          id: button.dataset.productId,
+          name: button.dataset.productName,
+          price: parseInt(button.dataset.productPrice),
+          image: button.dataset.productImage,
+          unit: "hộp"
+        };
+        
+        // Add multiple items to cart
+        for (let i = 0; i < quantity; i++) {
+          window.yenSaoCart.addItem(productData);
+        }
+        
+        // Update button state
+        const originalText = button.textContent;
+        button.textContent = `✓ Đã thêm ${quantity} sản phẩm`;
+        button.style.background = "#10b981";
+        
+        // Show cart sidebar
+        if (window.yenSaoCartUI) {
+          setTimeout(() => {
+            window.yenSaoCartUI.openCart();
+          }, 500);
+        }
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = "#C8A15A";
+        }, 3000);
+        
+        // GA4 tracking
+        if (typeof gtag !== "undefined") {
+          gtag("event", "add_to_cart", {
+            currency: "VND",
+            value: productData.price * quantity,
+            items: [{
+              item_id: productData.id,
+              item_name: productData.name,
+              quantity: quantity,
+              price: productData.price
+            }]
+          });
+        }
+      }
+      
+      // Handle quantity input changes
+      document.addEventListener("DOMContentLoaded", function() {
+        const quantityInput = document.getElementById("quantity");
+        if (quantityInput) {
+          quantityInput.addEventListener("change", function() {
+            let value = parseInt(this.value);
+            if (isNaN(value) || value < 1) {
+              this.value = 1;
+            } else if (value > 99) {
+              this.value = 99;
+            }
+          });
+        }
+        
+        // Add hover effects to quantity buttons
+        document.querySelectorAll(".quantity-btn").forEach(btn => {
+          btn.addEventListener("mouseenter", function() {
+            this.style.background = "#e0e0e0";
+          });
+          btn.addEventListener("mouseleave", function() {
+            this.style.background = "#f5f5f5";
+          });
+        });
+        
+        // Add hover effect to add to cart button
+        const addToCartBtn = document.querySelector(".add-to-cart-btn");
+        if (addToCartBtn) {
+          addToCartBtn.addEventListener("mouseenter", function() {
+            if (this.style.background === "rgb(200, 161, 90)" || this.style.background === "#C8A15A") {
+              this.style.background = "#b8925a";
+            }
+          });
+          addToCartBtn.addEventListener("mouseleave", function() {
+            if (this.style.background === "rgb(184, 146, 90)" || this.style.background === "#b8925a") {
+              this.style.background = "#C8A15A";
+            }
+          });
+        }
+      });
+    </script>
     </body>
     </html>
   `
