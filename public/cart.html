@@ -446,7 +446,7 @@
                 </div>
 
                 <button id="checkout-btn" class="checkout-btn" onclick="checkout()">
-                    📱 Đặt hàng qua WhatsApp
+                    📞 Liên hệ đặt hàng
                 </button>
                 
                 <a href="/" class="continue-shopping">← Tiếp tục mua hàng</a>
@@ -608,10 +608,39 @@
         }
 
         // Global functions
+        // Contact info function
         function checkout() {
-            if (window.yenSaoCart) {
-                window.yenSaoCart.orderViaWhatsApp();
+            showContactInfo();
+        }
+        
+        function showContactInfo() {
+            const cart = window.yenSaoCart ? window.yenSaoCart.getCart() : { items: [], total: 0, count: 0 };
+            
+            if (cart.items.length === 0) {
+                alert("Giỏ hàng của bạn đang trống");
+                return;
             }
+        
+            const contactMessage = `Cảm ơn bạn đã quan tâm đến sản phẩm Yến Sào Đăk Lăk!
+        
+Để hoàn tất đặt hàng, vui lòng liên hệ:
+        
+📞 Hotline: 1900 xxxx
+📧 Email: hello@yensao.com
+🕐 Giờ làm việc: 8:00 - 18:00 (Thứ 2 - Thứ 7)
+📍 Địa chỉ: Đăk Lăk, Việt Nam
+        
+Giỏ hàng của bạn:
+${cart.items.map(item => 
+  `• ${item.name} - SL: ${item.quantity} - Giá: ${new Intl.NumberFormat("vi-VN").format(item.price)}₫`
+).join("\n")}
+        
+Tổng cộng: ${new Intl.NumberFormat("vi-VN").format(cart.total)}₫
+        
+Chúng tôi sẽ liên hệ lại với bạn để xác nhận đơn hàng trong thời gian sớm nhất!`;
+        
+            alert(contactMessage);
+        }
         }
 
         // Initialize when DOM is ready

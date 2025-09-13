@@ -1,124 +1,127 @@
 /**
- * 🛒 Cart Management System - Yến Sào Đăk Lăk
- * Client-side cart with localStorage persistence
+ * 🛒 Yến Sào Cart Management - Simplified Version
+ * Simple cart without WhatsApp integration
  */
 
 class YenSaoCart {
   constructor() {
     this.storageKey = 'yensao_cart';
+    this.listeners = [];
     this.cart = this.loadFromStorage();
-    this.listeners = new Set();
     
-    // Initialize cart UI on page load
-    this.updateCartUI();
+    // Auto-save cart changes
+    this.setupAutoSave();
     
-    console.log('🛒 YenSaoCart initialized', this.cart);
+    // Update UI elements on initialization
+    this.updateCartCount();
+    
+    console.log('🛒 YenSao Cart initialized');
   }
 
   /**
-   * Load cart data from localStorage
+   * Load cart from localStorage
    */
   loadFromStorage() {
     try {
       const stored = localStorage.getItem(this.storageKey);
-      const cart = stored ? JSON.parse(stored) : { items: [], total: 0, count: 0 };
-      return this.validateCart(cart);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return {
+          items: Array.isArray(parsed.items) ? parsed.items : [],
+          total: parsed.total || 0,
+          count: parsed.count || 0
+        };
+      }
     } catch (error) {
-      console.error('Error loading cart from storage:', error);
-      return { items: [], total: 0, count: 0 };
+      console.warn('Error loading cart from storage:', error);
     }
+    
+    return {
+      items: [],
+      total: 0,
+      count: 0
+    };
   }
 
   /**
-   * Save cart data to localStorage
+   * Save cart to localStorage
    */
   saveToStorage() {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(this.cart));
     } catch (error) {
-      console.error('Error saving cart to storage:', error);
+      console.warn('Error saving cart to storage:', error);
     }
   }
 
   /**
-   * Validate and clean cart data
+   * Setup auto-save functionality
    */
-  validateCart(cart) {
-    if (!cart || !Array.isArray(cart.items)) {
-      return { items: [], total: 0, count: 0 };
-    }
-    
-    // Recalculate totals in case of data inconsistency
-    return this.recalculateTotals(cart);
-  }
+  setupAutoSave() {
+    // Debounced save function
+    let saveTimeout;
+    const debouncedSave = () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        this.saveToStorage();
+      }, 300);
+    };
 
-  /**
-   * Recalculate cart totals
-   */
-  recalculateTotals(cart = this.cart) {
-    let total = 0;
-    let count = 0;
-    
-    cart.items.forEach(item => {
-      if (item.price && item.quantity && item.quantity > 0) {
-        total += item.price * item.quantity;
-        count += item.quantity;
+    // Override cart property to trigger save on changes
+    this._cart = this.cart;
+    Object.defineProperty(this, 'cart', {
+      get() {
+        return this._cart;
+      },
+      set(value) {
+        this._cart = value;
+        debouncedSave();
       }
     });
-    
-    cart.total = total;
-    cart.count = count;
-    
-    return cart;
   }
 
   /**
-   * Add item to cart or update quantity if exists
+   * Add item to cart
    */
-  addItem(product, quantity = 1) {
-    if (!product || !product.id || quantity <= 0) {
-      console.error('Invalid product or quantity:', product, quantity);
+  addItem(product) {
+    if (!this.validateProduct(product)) {
+      console.warn('Invalid product data:', product);
       return false;
     }
 
     const existingItem = this.cart.items.find(item => item.id === product.id);
     
     if (existingItem) {
-      existingItem.quantity += quantity;
+      existingItem.quantity += 1;
     } else {
       this.cart.items.push({
         id: product.id,
         name: product.name,
         price: product.price,
-        quantity: quantity,
         image: product.image || null,
-        slug: product.slug || product.id
+        unit: product.unit || 'hộp',
+        quantity: 1
       });
     }
+
+    this.updateTotals();
+    this.notifyListeners('add', product);
+    this.updateCartCount();
     
-    this.recalculateTotals();
-    this.saveToStorage();
-    this.notifyListeners('add', product, quantity);
-    this.updateCartUI();
-    
-    console.log(`✅ Added ${quantity}x ${product.name} to cart`);
     return true;
   }
 
   /**
-   * Remove item from cart completely
+   * Remove item from cart
    */
   removeItem(productId) {
-    const index = this.cart.items.findIndex(item => item.id === productId);
+    const itemIndex = this.cart.items.findIndex(item => item.id === productId);
     
-    if (index !== -1) {
-      const removedItem = this.cart.items.splice(index, 1)[0];
-      this.recalculateTotals();
-      this.saveToStorage();
+    if (itemIndex !== -1) {
+      const removedItem = this.cart.items.splice(itemIndex, 1)[0];
+      this.updateTotals();
       this.notifyListeners('remove', removedItem);
-      this.updateCartUI();
-      
-      console.log(`🗑️ Removed ${removedItem.name} from cart`);
+      this.updateCartCount();
       return true;
     }
     
@@ -129,21 +132,23 @@ class YenSaoCart {
    * Update item quantity
    */
   updateQuantity(productId, newQuantity) {
-    if (newQuantity <= 0) {
+    if (newQuantity < 0) {
       return this.removeItem(productId);
     }
     
+    if (newQuantity === 0) {
+      return this.removeItem(productId);
+    }
+
     const item = this.cart.items.find(item => item.id === productId);
     
     if (item) {
       const oldQuantity = item.quantity;
-      item.quantity = newQuantity;
-      this.recalculateTotals();
-      this.saveToStorage();
-      this.notifyListeners('update', item, newQuantity - oldQuantity);
-      this.updateCartUI();
+      item.quantity = Math.max(1, Math.min(99, newQuantity)); // Limit between 1-99
       
-      console.log(`📝 Updated ${item.name} quantity to ${newQuantity}`);
+      this.updateTotals();
+      this.notifyListeners('update', { ...item, oldQuantity });
+      this.updateCartCount();
       return true;
     }
     
@@ -151,10 +156,27 @@ class YenSaoCart {
   }
 
   /**
-   * Get cart summary
+   * Clear entire cart
+   */
+  clearCart() {
+    this.cart = {
+      items: [],
+      total: 0,
+      count: 0
+    };
+    
+    this.notifyListeners('clear');
+    this.updateCartCount();
+  }
+
+  /**
+   * Get cart data
    */
   getCart() {
-    return { ...this.cart };
+    return {
+      ...this.cart,
+      items: [...this.cart.items] // Return copy to prevent direct mutation
+    };
   }
 
   /**
@@ -165,40 +187,104 @@ class YenSaoCart {
   }
 
   /**
-   * Get total amount
+   * Get total price
    */
   getTotal() {
     return this.cart.total;
   }
 
   /**
-   * Clear entire cart
+   * Check if item is in cart
    */
-  clearCart() {
-    this.cart = { items: [], total: 0, count: 0 };
-    this.saveToStorage();
-    this.notifyListeners('clear');
-    this.updateCartUI();
-    
-    console.log('🧹 Cart cleared');
-  }
-
-  /**
-   * Check if product is in cart
-   */
-  hasProduct(productId) {
+  hasItem(productId) {
     return this.cart.items.some(item => item.id === productId);
   }
 
   /**
-   * Get specific item from cart
+   * Get item quantity
    */
-  getItem(productId) {
-    return this.cart.items.find(item => item.id === productId);
+  getItemQuantity(productId) {
+    const item = this.cart.items.find(item => item.id === productId);
+    return item ? item.quantity : 0;
   }
 
   /**
-   * Format price in Vietnamese currency
+   * Validate product data
+   */
+  validateProduct(product) {
+    return product && 
+           typeof product.id === 'string' && 
+           typeof product.name === 'string' && 
+           typeof product.price === 'number' && 
+           product.price > 0;
+  }
+
+  /**
+   * Update cart totals
+   */
+  updateTotals() {
+    this.cart.total = this.cart.items.reduce((sum, item) => {
+      return sum + (item.price * item.quantity);
+    }, 0);
+    
+    this.cart.count = this.cart.items.reduce((sum, item) => {
+      return sum + item.quantity;
+    }, 0);
+  }
+
+  /**
+   * Update cart count in UI
+   */
+  updateCartCount() {
+    const countElements = document.querySelectorAll('[data-cart-count]');
+    countElements.forEach(element => {
+      element.textContent = this.cart.count;
+      element.style.display = this.cart.count > 0 ? 'flex' : 'none';
+    });
+
+    // Update add to cart button states
+    this.updateButtonStates();
+  }
+
+  /**
+   * Update button states based on cart contents
+   */
+  updateButtonStates() {
+    const buttons = document.querySelectorAll('[data-add-to-cart]');
+    buttons.forEach(button => {
+      const productId = button.dataset.productId;
+      if (productId && this.hasItem(productId)) {
+        button.classList.add('in-cart');
+        const quantity = this.getItemQuantity(productId);
+        if (quantity > 1) {
+          button.textContent = `Đã có ${quantity} trong giỏ`;
+        } else {
+          button.textContent = '✓ Đã thêm';
+        }
+      } else {
+        button.classList.remove('in-cart');
+        button.textContent = button.getAttribute('data-original-text') || 'Thêm vào giỏ';
+      }
+    });
+  }
+
+  /**
+   * Get cart summary for display
+   */
+  getCartSummary() {
+    if (this.cart.items.length === 0) {
+      return 'Giỏ hàng trống';
+    }
+
+    const summary = this.cart.items.map(item => 
+      `${item.name} x${item.quantity}`
+    ).join(', ');
+    
+    return `${this.cart.count} sản phẩm: ${summary}`;
+  }
+
+  /**
+   * Format price to Vietnamese currency
    */
   formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
@@ -208,186 +294,99 @@ class YenSaoCart {
    * Add event listener for cart changes
    */
   addListener(callback) {
-    this.listeners.add(callback);
+    if (typeof callback === 'function') {
+      this.listeners.push(callback);
+    }
   }
 
   /**
    * Remove event listener
    */
   removeListener(callback) {
-    this.listeners.delete(callback);
+    const index = this.listeners.indexOf(callback);
+    if (index > -1) {
+      this.listeners.splice(index, 1);
+    }
   }
 
   /**
    * Notify all listeners of cart changes
    */
-  notifyListeners(action, item, quantity) {
-    this.listeners.forEach(callback => {
+  notifyListeners(action, data = null) {
+    const event = {
+      action,
+      cart: this.getCart(),
+      item: data,
+      timestamp: new Date()
+    };
+
+    this.listeners.forEach(listener => {
       try {
-        callback({ action, item, quantity, cart: this.getCart() });
+        listener(event);
       } catch (error) {
-        console.error('Error in cart listener:', error);
+        console.warn('Error in cart listener:', error);
       }
     });
   }
 
   /**
-   * Update cart UI elements on page
+   * Export cart data (useful for debugging or data transfer)
    */
-  updateCartUI() {
-    // Update cart count badges
-    const countElements = document.querySelectorAll('.cart-count, [data-cart-count]');
-    countElements.forEach(el => {
-      el.textContent = this.cart.count;
-      el.style.display = this.cart.count > 0 ? '' : 'none';
-    });
-
-    // Update cart total displays
-    const totalElements = document.querySelectorAll('.cart-total, [data-cart-total]');
-    totalElements.forEach(el => {
-      el.textContent = this.formatPrice(this.cart.total);
-    });
-
-    // Update cart empty state
-    const emptyElements = document.querySelectorAll('.cart-empty');
-    const hasItems = this.cart.count > 0;
-    emptyElements.forEach(el => {
-      el.style.display = hasItems ? 'none' : '';
-    });
-
-    // Update cart items displays
-    const itemsElements = document.querySelectorAll('.cart-items');
-    itemsElements.forEach(el => {
-      el.style.display = hasItems ? '' : 'none';
-    });
-
-    // Update add to cart button states
-    this.updateAddToCartButtons();
+  exportCart() {
+    return {
+      cart: this.getCart(),
+      exportDate: new Date().toISOString(),
+      version: '2.0'
+    };
   }
 
   /**
-   * Update add to cart button states
+   * Import cart data
    */
-  updateAddToCartButtons() {
-    const buttons = document.querySelectorAll('[data-add-to-cart]');
-    buttons.forEach(button => {
-      const productId = button.dataset.addToCart;
-      const item = this.getItem(productId);
-      
-      if (item) {
-        button.classList.add('in-cart');
-        const originalText = button.dataset.originalText || button.textContent;
-        button.dataset.originalText = originalText;
-        button.innerHTML = `✓ Trong giỏ (${item.quantity})`;
-      } else {
-        button.classList.remove('in-cart');
-        if (button.dataset.originalText) {
-          button.textContent = button.dataset.originalText;
-        }
+  importCart(cartData) {
+    try {
+      if (cartData && cartData.cart && Array.isArray(cartData.cart.items)) {
+        this.cart = {
+          items: cartData.cart.items.filter(item => this.validateProduct(item)),
+          total: 0,
+          count: 0
+        };
+        this.updateTotals();
+        this.updateCartCount();
+        this.notifyListeners('import');
+        return true;
       }
-    });
-  }
-
-  /**
-   * Generate WhatsApp order message
-   */
-  generateWhatsAppMessage() {
-    if (this.cart.count === 0) return '';
-    
-    let message = '🛒 *Đơn hàng từ Yến Sào Đăk Lăk*\n\n';
-    
-    this.cart.items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name}\n`;
-      message += `   Số lượng: ${item.quantity}\n`;
-      message += `   Đơn giá: ${this.formatPrice(item.price)}\n`;
-      message += `   Thành tiền: ${this.formatPrice(item.price * item.quantity)}\n\n`;
-    });
-    
-    message += `💰 *Tổng cộng: ${this.formatPrice(this.cart.total)}*\n\n`;
-    message += 'Vui lòng xác nhận đơn hàng và thông tin giao hàng. Cảm ơn quý khách!';
-    
-    return message;
-  }
-
-  /**
-   * Open WhatsApp with order details
-   */
-  orderViaWhatsApp(phoneNumber = '1900xxxx') {
-    const message = this.generateWhatsAppMessage();
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
-    
-    // Track order initiation
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'begin_checkout', {
-        currency: 'VND',
-        value: this.cart.total,
-        items: this.cart.items.map(item => ({
-          item_id: item.id,
-          item_name: item.name,
-          quantity: item.quantity,
-          price: item.price
-        }))
-      });
+    } catch (error) {
+      console.warn('Error importing cart:', error);
     }
+    return false;
   }
 }
 
-// Initialize global cart instance
-window.yenSaoCart = new YenSaoCart();
-
-// Auto-setup add to cart buttons on page load
+// Initialize cart when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  // Setup add to cart buttons
-  document.addEventListener('click', function(e) {
-    const button = e.target.closest('[data-add-to-cart]');
-    if (!button) return;
-    
-    e.preventDefault();
-    
-    const productId = button.dataset.addToCart;
-    const productName = button.dataset.productName || 'Sản phẩm';
-    const productPrice = parseInt(button.dataset.productPrice) || 0;
-    const productImage = button.dataset.productImage || null;
-    const quantity = parseInt(button.dataset.quantity) || 1;
-    
-    const product = {
-      id: productId,
-      name: productName,
-      price: productPrice,
-      image: productImage
-    };
-    
-    const success = window.yenSaoCart.addItem(product, quantity);
-    
-    if (success) {
-      // Show success feedback
-      const originalText = button.textContent;
-      button.textContent = '✓ Đã thêm!';
-      button.style.backgroundColor = '#10b981';
-      
-      setTimeout(() => {
-        window.yenSaoCart.updateCartUI();
-      }, 1000);
-    }
-    
-    // Track add to cart event
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'add_to_cart', {
-        currency: 'VND',
-        value: product.price * quantity,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          quantity: quantity,
-          price: product.price
-        }]
-      });
+  // Store original button texts
+  document.querySelectorAll('[data-add-to-cart]').forEach(button => {
+    if (!button.hasAttribute('data-original-text')) {
+      button.setAttribute('data-original-text', button.textContent);
     }
   });
+
+  // Initialize cart
+  window.yenSaoCart = new YenSaoCart();
   
-  console.log('🛒 Cart auto-setup completed');
+  console.log('🛒 Cart system ready');
 });
 
+// Handle page visibility changes to sync cart state
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && window.yenSaoCart) {
+    // Reload cart when page becomes visible (for multi-tab sync)
+    const freshCart = window.yenSaoCart.loadFromStorage();
+    if (JSON.stringify(freshCart) !== JSON.stringify(window.yenSaoCart.cart)) {
+      window.yenSaoCart.cart = freshCart;
+      window.yenSaoCart.updateCartCount();
+      window.yenSaoCart.notifyListeners('sync');
+    }
+  }
+});

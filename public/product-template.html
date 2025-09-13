@@ -513,7 +513,7 @@
                     </button>
 
                     <a href="#" class="buy-now-btn" onclick="buyNow(); return false;">
-                        📱 Mua ngay qua WhatsApp
+                        📞 Liên hệ đặt hàng
                     </a>
                 </div>
             </div>
@@ -656,11 +656,64 @@
         }
 
         // Buy now
+        // Contact for order function
         function buyNow() {
-            if (!window.yenSaoCart) {
-                console.warn('Cart not initialized yet');
+            const quantity = parseInt(document.getElementById("quantity").value);
+            
+            // Add to cart first
+            if (window.yenSaoCart) {
+                window.yenSaoCart.clearCart();
+                for (let i = 0; i < quantity; i++) {
+                    window.yenSaoCart.addItem(productData);
+                }
+            }
+            
+            // Show contact info
+            showContactInfo();
+        
+            // GA4 tracking
+            if (typeof gtag !== "undefined") {
+                gtag("event", "begin_checkout", {
+                    currency: "VND",
+                    value: productData.price * quantity,
+                    items: [{
+                        item_id: productData.id,
+                        item_name: productData.name,
+                        quantity: quantity,
+                        price: productData.price
+                    }]
+                });
+            }
+        }
+        
+        function showContactInfo() {
+            const cart = window.yenSaoCart ? window.yenSaoCart.getCart() : { items: [], total: 0, count: 0 };
+            
+            if (cart.items.length === 0) {
+                alert("Vui lòng thêm sản phẩm vào giỏ hàng trước");
                 return;
             }
+        
+            const contactMessage = `Cảm ơn bạn đã quan tâm đến sản phẩm!
+        
+Để đặt hàng, vui lòng liên hệ:
+        
+📞 Hotline: 1900 xxxx
+📧 Email: hello@yensao.com
+🕐 Giờ làm việc: 8:00 - 18:00 (T2-T7)
+📍 Địa chỉ: Đăk Lăk, Việt Nam
+        
+Sản phẩm bạn quan tâm:
+${cart.items.map(item => 
+  `• ${item.name} - SL: ${item.quantity} - Giá: ${new Intl.NumberFormat("vi-VN").format(item.price)}₫`
+).join("\n")}
+        
+Tổng cộng: ${new Intl.NumberFormat("vi-VN").format(cart.total)}₫
+        
+Chúng tôi sẽ liên hệ lại để xác nhận đơn hàng!`;
+        
+            alert(contactMessage);
+        }
 
             const quantity = parseInt(document.getElementById('quantity').value);
             
@@ -670,8 +723,8 @@
                 window.yenSaoCart.addItem(productData);
             }
             
-            // Order via WhatsApp
-            window.yenSaoCart.orderViaWhatsApp();
+            // Show contact info
+            showContactInfo();
 
             // GA4 tracking
             if (typeof gtag !== 'undefined') {

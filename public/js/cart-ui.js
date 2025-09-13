@@ -521,8 +521,8 @@ class YenSaoCartUI {
     // Close cart first
     this.closeCart();
     
-    // Generate WhatsApp order
-    window.yenSaoCart.orderViaWhatsApp();
+    // Show contact info
+    showContactInfo();
   }
 
   /**
@@ -586,3 +586,30 @@ document.addEventListener('DOMContentLoaded', function() {
   window.yenSaoCartUI = new YenSaoCartUI();
 });
 
+
+// Contact info function (replaces WhatsApp checkout)
+function showContactInfo() {
+  const cart = window.yenSaoCart ? window.yenSaoCart.getCart() : { items: [], total: 0, count: 0 };
+  
+  if (cart.items.length === 0) {
+    alert('Giỏ hàng của bạn đang trống');
+    return;
+  }
+
+  const contactMessage = `Để đặt hàng các sản phẩm trong giỏ, vui lòng liên hệ:
+
+📞 Hotline: 1900 xxxx
+📧 Email: hello@yensao.com
+🕐 Giờ làm việc: 8:00 - 18:00 (T2-T7)
+
+Giỏ hàng của bạn:
+${cart.items.map(item => 
+  `• ${item.name} - SL: ${item.quantity} - Giá: ${new Intl.NumberFormat('vi-VN').format(item.price)}₫`
+).join('\n')}
+
+Tổng cộng: ${new Intl.NumberFormat('vi-VN').format(cart.total)}₫
+
+Cảm ơn bạn đã quan tâm đến sản phẩm Yến Sào Đăk Lăk!`;
+
+  alert(contactMessage);
+}
