@@ -89,13 +89,13 @@ app.get("/", async (c) => {
     // Robust product click handler with event delegation (works with dynamic content)
     (function(){
       const productSlugs = {
-        'Yến chưng hũ 70 ml': 'yen-chung-hu-70ml',
-        'Yến chưng hũ 100 ml': 'yen-chung-hu-100ml', 
-        'Yến tinh sạch 50 g': 'yen-tinh-sach-50g',
-        'Yến thô 100 g': 'yen-tho-100g',
-        'Combo quà tặng': 'combo-qua-tang',
-        'Set dùng thử': 'set-dung-thu'
-      };
+    "70ml": "yen-chung-hu-70ml",
+    "100ml": "yen-chung-hu-100ml",
+    "50g": "yen-tinh-sach-50g", 
+    "100g": "yen-tho-100g",
+    "combo": "combo-qua-tang",
+    "set": "set-dung-thu"
+  };
       
       // Find product elements by onclick attributes (existing GA4 tracking)
       function matchSlugFromText(text){
@@ -256,13 +256,11 @@ document.addEventListener("DOMContentLoaded", function() {
   
   const productSlugs = {
     "70ml": "yen-chung-hu-70ml",
-    "70 ml": "yen-chung-hu-70ml",
     "100ml": "yen-chung-hu-100ml",
-    "100 ml": "yen-chung-hu-100ml", 
-    "50 g": "yen-tinh-sach-50g",
-    "100 g": "yen-tho-100g",
-    "quà tặng": "combo-qua-tang",
-    "dùng thử": "set-dung-thu"
+    "50g": "yen-tinh-sach-50g", 
+    "100g": "yen-tho-100g",
+    "combo": "combo-qua-tang",
+    "set": "set-dung-thu"
   };
   
   document.addEventListener("click", function(e) {
