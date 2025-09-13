@@ -13,6 +13,18 @@
       "database_id": "14c1f0cd-dde0-49fd-b5ec-db76bf32e23e"
     }
   ],
+  "kv_namespaces": [
+    {
+      "binding": "YENSAO_KV",
+      "id": "aa695493199a48f8a9281d3a958d5297"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "yensao-media"
+    }
+  ],
   "routes": [
     {
       "pattern": "yensaodaklak.vn/*",

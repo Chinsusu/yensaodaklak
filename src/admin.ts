@@ -36,15 +36,13 @@ async function verifyToken(secret: string, token: string) {
   const [role, expStr] = payload.split('.')
   const exp = Number(expStr || 0)
   if (role !== 'admin' || !exp || Date.now() / 1000 > exp) return false
-function requireStorage(b: Bindings) {
-  if (!b.YENSAO_KV || !b.MEDIA) {
-    throw new HTTPException(503, { message: "KV/R2 storage chưa được cấu hình. Vui lòng cấu hình trong wrangler.jsonc và deploy lại." })
-  }
+  const expect = await hmacSHA256(secret, payload)
+  return expect === sig
 }
 
 function requireStorage(b: Bindings) {
   if (!b.YENSAO_KV || !b.MEDIA) {
-    throw new HTTPException(501, { message: 'Storage not configured: please bind KV (YENSAO_KV) and R2 (MEDIA) in wrangler.jsonc' })
+    throw new HTTPException(501, { message: 'KV/R2 storage chưa được cấu hình. Vui lòng cấu hình trong wrangler.jsonc và deploy lại.' })
   }
 }
 
