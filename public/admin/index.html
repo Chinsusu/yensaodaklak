@@ -3,23 +3,138 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Admin Yến Sào</title>
+  <title>Admin Yến Sào - Quản lý chi tiết</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
-    body{background:#faf7f0}
-    .card{background:#fff;border:1px solid #eee;border-radius:14px;padding:14px}
-    .grid{display:grid;gap:12px}
-    input,textarea,select{border:1px solid #ddd;border-radius:12px;padding:10px;width:100%}
-    button{border-radius:12px;padding:10px 14px}
-    .btn{background:#C8A15A;color:#fff}
+    body{background:#faf7f0; font-family: 'Inter', -apple-system, sans-serif}
+    .card{background:#fff;border:1px solid #e5e5e5;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    .grid{display:grid;gap:16px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px}
+    input,textarea,select{border:1px solid #d1d5db;border-radius:8px;padding:12px;width:100%;font-size:14px}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:#C8A15A;box-shadow:0 0 0 3px rgba(200,161,90,0.1)}
+    button{border-radius:8px;padding:12px 16px;font-weight:500;cursor:pointer;border:1px solid transparent}
+    .btn{background:#C8A15A;color:#fff;border-color:#C8A15A}
+    .btn:hover{background:#b8925a}
     .btn-outline{background:#fff;border:1px solid #C8A15A;color:#4B3A2B}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid #eee;padding:8px;text-align:left}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn-outline:hover{background:#fef7ed}
+    .btn-danger{background:#dc2626;color:#fff}
+    .btn-danger:hover{background:#b91c1c}
+    .btn-sm{padding:8px 12px;font-size:12px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{border-bottom:1px solid #f3f4f6;padding:12px 8px;text-align:left}
+    th{background:#f9fafb;font-weight:600}
+    .img-preview{width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #e5e5e5}
+    .status-active{background:#10b981;color:white;padding:4px 8px;border-radius:4px;font-size:12px}
+    .status-inactive{background:#6b7280;color:white;padding:4px 8px;border-radius:4px;font-size:12px}
+    .tab-active{background:#C8A15A;color:white}
+    .form-group{margin-bottom:16px}
+    .form-label{font-weight:500;margin-bottom:8px;display:block;color:#374151}
+    .form-help{font-size:12px;color:#6b7280;margin-top:4px}
+    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal.show{display:flex}
+    .modal-content{background:white;border-radius:16px;padding:24px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto}
+    .image-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:12px}
+    .image-item{position:relative;border-radius:8px;overflow:hidden;border:1px solid #e5e5e5}
+    .image-item img{width:100%;height:100px;object-fit:cover}
+    .image-remove{position:absolute;top:4px;right:4px;background:#dc2626;color:white;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px}
+    .drag-drop{border:2px dashed #d1d5db;border-radius:8px;padding:32px;text-align:center;background:#f9fafb;cursor:pointer}
+    .drag-drop.dragover{border-color:#C8A15A;background:#fef7ed}
   </style>
 </head>
 <body class="p-4">
-  <div id="app" class="grid max-w-5xl mx-auto"></div>
+  <div id="app" class="grid max-w-6xl mx-auto"></div>
+  
+  <!-- Product Edit Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 id="modalTitle">Thêm sản phẩm mới</h2>
+        <button type="button" onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+      </div>
+      
+      <form id="productForm" class="grid">
+        <input type="hidden" id="edit_id">
+        
+        <div class="row">
+          <div class="col" style="flex:2">
+            <label class="form-label">Tên sản phẩm *</label>
+            <input id="edit_name" placeholder="Ví dụ: Yến chưng hũ 70ml" required>
+            <div class="form-help">Tên hiển thị của sản phẩm</div>
+          </div>
+          <div class="col" style="flex:1">
+            <label class="form-label">Slug URL *</label>
+            <input id="edit_slug" placeholder="yen-chung-hu-70ml" required>
+            <div class="form-help">URL thân thiện (a-z, 0-9, dấu gạch ngang)</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col" style="flex:1">
+            <label class="form-label">Giá bán (VNĐ) *</label>
+            <input id="edit_price" type="number" placeholder="89000" required>
+          </div>
+          <div class="col" style="flex:1">
+            <label class="form-label">Giá gốc (VNĐ)</label>
+            <input id="edit_original_price" type="number" placeholder="120000">
+            <div class="form-help">Để hiển thị giá gạch ngang</div>
+          </div>
+          <div class="col" style="flex:1">
+            <label class="form-label">Danh mục</label>
+            <select id="edit_category_id">
+              <option value="">-- Chọn danh mục --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mô tả ngắn</label>
+          <textarea id="edit_description" rows="3" placeholder="Mô tả ngắn gọn về sản phẩm, hiển thị trên card..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mô tả chi tiết</label>
+          <textarea id="edit_long_desc" rows="5" placeholder="Mô tả chi tiết, thành phần, công dụng, cách sử dụng..."></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col" style="flex:1">
+            <label class="form-label">Trạng thái</label>
+            <select id="edit_status">
+              <option value="active">Hoạt động</option>
+              <option value="inactive">Ẩn</option>
+              <option value="draft">Nháp</option>
+            </select>
+          </div>
+          <div class="col" style="flex:1">
+            <label class="form-label">Sắp xếp</label>
+            <input id="edit_sort_order" type="number" value="0" placeholder="0">
+            <div class="form-help">Số nhỏ hơn hiển thị trước</div>
+          </div>
+          <div class="col" style="flex:1">
+            <label class="form-label">Tồn kho</label>
+            <input id="edit_stock" type="number" placeholder="100">
+            <div class="form-help">Để trống = không giới hạn</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Hình ảnh sản phẩm</label>
+          <div class="drag-drop" id="imageDrop">
+            <div>Kéo thả hình ảnh vào đây hoặc <strong>click để chọn file</strong></div>
+            <div style="font-size:12px;color:#6b7280;margin-top:8px">Hỗ trợ: JPG, PNG, WebP. Tối đa 5MB mỗi file.</div>
+          </div>
+          <input type="file" id="imageInput" multiple accept="image/*" style="display:none">
+          <div id="imageGallery" class="image-gallery"></div>
+        </div>
+
+        <div class="row" style="justify-content:flex-end;gap:12px;margin-top:24px">
+          <button type="button" onclick="closeModal()" class="btn-outline">Hủy</button>
+          <button type="submit" class="btn">Lưu sản phẩm</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 <script>
 const $ = (s,ctx=document)=>ctx.querySelector(s);
@@ -27,189 +142,505 @@ const $$ = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
 
 async function api(path, opts={}){
   const res = await fetch('/api/admin'+path, {credentials:'include', ...opts});
-  if(!res.ok){ const t = await res.json().catch(()=>({})); throw new Error(t.error||res.statusText); }
+  if(!res.ok){ 
+    const t = await res.json().catch(()=>({})); 
+    throw new Error(t.error||res.statusText); 
+  }
   return res.json();
 }
 
+let currentProduct = null;
+let categories = [];
+
+// Authentication
 function viewLogin(){
   app.innerHTML = `
     <div class="card">
-      <h2>Đăng nhập</h2>
-      <div class="row">
-        <input id="password" type="password" placeholder="Mật khẩu admin">
+      <h2>🔐 Đăng nhập Admin</h2>
+      <div class="col">
+        <input id="password" type="password" placeholder="Nhập mật khẩu admin">
         <button class="btn" id="btnLogin">Đăng nhập</button>
       </div>
-      <p class="text-sm text-gray">Mặc định: <code>Calomam@12</code> (nên đổi bằng secret <b>ADMIN_PASSWORD</b>).</p>
+      <p style="font-size:14px;color:#6b7280;margin-top:16px">
+        Mật khẩu mặc định: <code>Calomam@12</code><br>
+        (Nên thay đổi bằng biến môi trường <strong>ADMIN_PASSWORD</strong>)
+      </p>
     </div>`;
   $('#btnLogin').onclick = async ()=>{
     const password = $('#password').value.trim();
     try{
       await api('/login', {method:'POST', body: new URLSearchParams({password})});
       viewDashboard();
-    }catch(e){ alert(e.message); }
+    }catch(e){ alert('❌ ' + e.message); }
   };
 }
 
+// Main Dashboard
 async function viewDashboard(){
   try{ await api('/me'); }catch(e){ return viewLogin(); }
 
   app.innerHTML = `
   <div class="grid">
-    <div class="row">
-      <button class="btn" id="tabProds">Sản phẩm</button>
-      <button class="btn-outline" id="tabCats">Danh mục</button>
-      <button class="btn-outline" id="tabUpload">Upload ảnh</button>
+    <div class="card">
+      <h1>🏪 Yến Sào Admin Dashboard</h1>
+      <div class="row">
+        <button class="btn tab-active" id="tabProds">📦 Sản phẩm</button>
+        <button class="btn-outline" id="tabCats">🏷️ Danh mục</button>
+        <button class="btn-outline" id="tabUpload">📁 Upload</button>
+        <button class="btn-outline" onclick="location.reload()">🔄 Refresh</button>
+      </div>
     </div>
     <div id="panel" class="grid"></div>
   </div>`;
 
-  $('#tabProds').onclick = renderProducts;
-  $('#tabCats').onclick = renderCats;
-  $('#tabUpload').onclick = renderUpload;
+  $('#tabProds').onclick = ()=>{switchTab('tabProds'); renderProducts();};
+  $('#tabCats').onclick = ()=>{switchTab('tabCats'); renderCategories();};
+  $('#tabUpload').onclick = ()=>{switchTab('tabUpload'); renderUpload();};
+  
+  await loadCategories();
   renderProducts();
 }
 
-async function renderCats(){
-  const {data} = await api('/categories');
-  $('#panel').innerHTML = `
-    <div class="card">
-      <h3>Thêm danh mục</h3>
-      <div class="row">
-        <input id="cat_name" placeholder="Tên">
-        <input id="cat_slug" placeholder="Slug (a-z-0-9)">
-        <button class="btn" id="cat_add">Thêm</button>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Danh sách</h3>
-      <table><thead><tr><th>ID</th><th>Tên</th><th>Slug</th><th></th></tr></thead>
-      <tbody id="cat_rows"></tbody></table>
-    </div>`;
-  const tbody = $('#cat_rows');
-  tbody.innerHTML = data.map(c=>`<tr>
-    <td>${c.id}</td><td><input data-id="${c.id}" data-k="name" value="${c.name}"></td>
-    <td><input data-id="${c.id}" data-k="slug" value="${c.slug}"></td>
-    <td><button data-del="${c.id}">Xoá</button> <button data-save="${c.id}" class="btn">Lưu</button></td>
-  </tr>`).join('');
-
-  $('#cat_add').onclick = async ()=>{
-    const name = $('#cat_name').value.trim();
-    const slug = $('#cat_slug').value.trim();
-    if(!name||!slug) return alert('Nhập đủ tên & slug');
-    await api('/categories', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, slug})});
-    renderCats();
-  };
-
-  tbody.addEventListener('click', async (e)=>{
-    const id = e.target.getAttribute('data-del') || e.target.getAttribute('data-save');
-    if(!id) return;
-    if(e.target.hasAttribute('data-del')){
-      if(confirm('Xoá?')){ await api('/categories/'+id, {method:'DELETE'}); renderCats(); }
-    }else{
-      const row = e.target.closest('tr');
-      const name = row.querySelector('input[data-k="name"]').value;
-      const slug = row.querySelector('input[data-k="slug"]').value;
-      await api('/categories/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, slug})});
-      alert('Đã lưu');
-    }
+function switchTab(activeId){
+  $$('button[id^="tab"]').forEach(btn => {
+    btn.className = btn.id === activeId ? 'btn tab-active' : 'btn-outline';
   });
 }
 
+async function loadCategories(){
+  try{
+    const {data} = await api('/categories');
+    categories = data;
+  }catch(e){
+    categories = [];
+  }
+}
+
+// Products Management
 async function renderProducts(){
-  const {data} = await api('/products');
-  const cats = (await api('/categories')).data;
-  $('#panel').innerHTML = `
-  <div class="card">
-    <h3>Thêm sản phẩm</h3>
-    <div class="row">
-      <input id="p_name" placeholder="Tên">
-      <input id="p_slug" placeholder="Slug">
-      <input id="p_price" type="number" placeholder="Giá (VND)">
-      <select id="p_cat"><option value="">--Danh mục--</option>
-        ${cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
-      </select>
-      <button class="btn" id="p_add">Thêm</button>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Danh sách</h3>
-    <table><thead><tr><th>ID</th><th>Tên</th><th>Slug</th><th>Giá</th><th>Ảnh</th><th></th></tr></thead>
-    <tbody id="prod_rows"></tbody></table>
-  </div>`;
+  try{
+    const {data: products} = await api('/products');
+    
+    $('#panel').innerHTML = `
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h3>📦 Quản lý sản phẩm (${products.length})</h3>
+          <button class="btn" onclick="openProductModal()">➕ Thêm sản phẩm mới</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Slug</th>
+                <th>Giá</th>
+                <th>Danh mục</th>
+                <th>Trạng thái</th>
+                <th>Tồn kho</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="productsTable">
+              ${products.map(p => renderProductRow(p)).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }catch(e){
+    $('#panel').innerHTML = `<div class="card"><p>❌ Lỗi: ${e.message}</p></div>`;
+  }
+}
 
-  const tbody = $('#prod_rows');
-  tbody.innerHTML = data.map(p=>`<tr>
-    <td>${p.id}</td>
-    <td><input data-id="${p.id}" data-k="name" value="${p.name}"></td>
-    <td><input data-id="${p.id}" data-k="slug" value="${p.slug}"></td>
-    <td><input data-id="${p.id}" data-k="price" type="number" value="${p.price||0}"></td>
-    <td>
-      <div>${(p.images||[]).map((u,i)=>`<a href="${u}" target="_blank" title="${u}">Ảnh ${i+1}</a>`).join(", ")}</div>
-      <input type="file" multiple accept="image/*" data-upload="${p.id}">
-    </td>
-    <td><button data-del="${p.id}">Xoá</button> <button data-save="${p.id}" class="btn">Lưu</button></td>
-  </tr>`).join('');
+function renderProductRow(product){
+  const category = categories.find(c => c.id === product.category_id);
+  const firstImage = product.images && product.images[0] ? 
+    `<img src="${product.images[0]}" class="img-preview" alt="${product.name}">` : 
+    `<div style="width:60px;height:60px;background:#f3f4f6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#9ca3af">No image</div>`;
+  
+  const statusBadge = product.status === 'active' ? 
+    `<span class="status-active">Hoạt động</span>` : 
+    `<span class="status-inactive">${product.status || 'inactive'}</span>`;
 
-  $('#p_add').onclick = async ()=>{
-    const body = {
-      name: $('#p_name').value.trim(),
-      slug: $('#p_slug').value.trim(),
-      price: Number($('#p_price').value||0),
-      category_id: Number($('#p_cat').value||0) || undefined
-    };
-    if(!body.name || !body.slug) return alert('Nhập đủ tên & slug');
-    await api('/products', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    renderProducts();
-  };
+  return `
+    <tr>
+      <td>${product.id}</td>
+      <td>${firstImage}</td>
+      <td><strong>${product.name}</strong><br><small style="color:#6b7280">${product.description || ''}</small></td>
+      <td><code>${product.slug}</code></td>
+      <td><strong>${product.price?.toLocaleString('vi-VN')}₫</strong></td>
+      <td>${category ? category.name : '-'}</td>
+      <td>${statusBadge}</td>
+      <td>${product.stock || '∞'}</td>
+      <td>
+        <div class="row" style="gap:8px">
+          <button class="btn-outline btn-sm" onclick="openProductModal(${product.id})">✏️ Sửa</button>
+          <button class="btn-danger btn-sm" onclick="deleteProduct(${product.id})">🗑️ Xóa</button>
+        </div>
+      </td>
+    </tr>`;
+}
 
-  tbody.addEventListener('change', async (e)=>{
-    const id = e.target.getAttribute('data-upload');
-    if(!id) return;
-    const files = e.target.files;
-    const fd = new FormData();
-    for(const f of files) fd.append('files', f);
-    const res = await api('/upload', {method:'POST', body: fd});
-    const pro = data.find(x=>x.id==id);
-    pro.images = [...(pro.images||[]), ...res.files.map(x=>x.url)];
-    await api('/products/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({images: pro.images})});
-    renderProducts();
-  });
+// Product Modal Functions
+function openProductModal(productId = null){
+  const modal = $('#productModal');
+  const title = $('#modalTitle');
+  
+  if(productId){
+    title.textContent = 'Chỉnh sửa sản phẩm';
+    loadProductForEdit(productId);
+  } else {
+    title.textContent = 'Thêm sản phẩm mới';
+    resetForm();
+  }
+  
+  populateCategories();
+  setupImageHandling();
+  modal.classList.add('show');
+}
 
-  tbody.addEventListener('click', async (e)=>{
-    const id = e.target.getAttribute('data-del') || e.target.getAttribute('data-save');
-    if(!id) return;
-    if(e.target.hasAttribute('data-del')){
-      if(confirm('Xoá?')){ await api('/products/'+id, {method:'DELETE'}); renderProducts(); }
-    }else{
-      const row = e.target.closest('tr');
-      const body = {
-        name: row.querySelector('input[data-k="name"]').value,
-        slug: row.querySelector('input[data-k="slug"]').value,
-        price: Number(row.querySelector('input[data-k="price"]').value||0),
-      };
-      await api('/products/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-      alert('Đã lưu');
+function closeModal(){
+  $('#productModal').classList.remove('show');
+  currentProduct = null;
+}
+
+async function loadProductForEdit(productId){
+  try{
+    const {data: products} = await api('/products');
+    currentProduct = products.find(p => p.id === productId);
+    
+    if(currentProduct){
+      $('#edit_id').value = currentProduct.id || '';
+      $('#edit_name').value = currentProduct.name || '';
+      $('#edit_slug').value = currentProduct.slug || '';
+      $('#edit_price').value = currentProduct.price || '';
+      $('#edit_original_price').value = currentProduct.original_price || '';
+      $('#edit_category_id').value = currentProduct.category_id || '';
+      $('#edit_description').value = currentProduct.description || '';
+      $('#edit_long_desc').value = currentProduct.long_desc || '';
+      $('#edit_status').value = currentProduct.status || 'active';
+      $('#edit_sort_order').value = currentProduct.sort_order || 0;
+      $('#edit_stock').value = currentProduct.stock || '';
+      
+      renderImageGallery(currentProduct.images || []);
     }
+  }catch(e){
+    alert('❌ Lỗi tải sản phẩm: ' + e.message);
+  }
+}
+
+function resetForm(){
+  $('#productForm').reset();
+  $('#edit_id').value = '';
+  $('#edit_status').value = 'active';
+  $('#edit_sort_order').value = '0';
+  renderImageGallery([]);
+}
+
+function populateCategories(){
+  const select = $('#edit_category_id');
+  select.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+  categories.forEach(cat => {
+    select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
   });
 }
 
+// Image Handling
+function setupImageHandling(){
+  const dropZone = $('#imageDrop');
+  const fileInput = $('#imageInput');
+  
+  dropZone.onclick = () => fileInput.click();
+  
+  dropZone.ondragover = (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  };
+  
+  dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+  
+  dropZone.ondrop = (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  };
+  
+  fileInput.onchange = (e) => handleFiles(e.target.files);
+}
+
+async function handleFiles(files){
+  const formData = new FormData();
+  for(const file of files){
+    if(file.size > 5 * 1024 * 1024){
+      alert(`❌ File ${file.name} quá lớn (>5MB)`);
+      continue;
+    }
+    formData.append('files', file);
+  }
+  
+  try{
+    const result = await api('/upload', {method: 'POST', body: formData});
+    const currentImages = getCurrentImages();
+    const newImages = [...currentImages, ...result.files.map(f => f.url)];
+    renderImageGallery(newImages);
+  }catch(e){
+    alert('❌ Upload thất bại: ' + e.message);
+  }
+}
+
+function getCurrentImages(){
+  return Array.from($('#imageGallery .image-item')).map(item => 
+    item.querySelector('img').src
+  );
+}
+
+function renderImageGallery(images){
+  const gallery = $('#imageGallery');
+  gallery.innerHTML = images.map((src, index) => `
+    <div class="image-item">
+      <img src="${src}" alt="Product ${index + 1}">
+      <button class="image-remove" onclick="removeImage(${index})">×</button>
+    </div>
+  `).join('');
+}
+
+function removeImage(index){
+  const images = getCurrentImages();
+  images.splice(index, 1);
+  renderImageGallery(images);
+}
+
+// Form Submission
+$('#productForm').onsubmit = async (e) => {
+  e.preventDefault();
+  
+  const formData = {
+    name: $('#edit_name').value.trim(),
+    slug: $('#edit_slug').value.trim(),
+    price: parseFloat($('#edit_price').value) || 0,
+    original_price: parseFloat($('#edit_original_price').value) || null,
+    category_id: parseInt($('#edit_category_id').value) || null,
+    description: $('#edit_description').value.trim(),
+    long_desc: $('#edit_long_desc').value.trim(),
+    status: $('#edit_status').value,
+    sort_order: parseInt($('#edit_sort_order').value) || 0,
+    stock: parseInt($('#edit_stock').value) || null,
+    images: getCurrentImages()
+  };
+  
+  if(!formData.name || !formData.slug){
+    return alert('❌ Vui lòng nhập tên và slug sản phẩm');
+  }
+  
+  try{
+    const productId = $('#edit_id').value;
+    if(productId){
+      await api(`/products/${productId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+      });
+      alert('✅ Cập nhật sản phẩm thành công!');
+    } else {
+      await api('/products', {
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+      });
+      alert('✅ Thêm sản phẩm mới thành công!');
+    }
+    
+    closeModal();
+    renderProducts();
+  }catch(e){
+    alert('❌ Lỗi: ' + e.message);
+  }
+};
+
+async function deleteProduct(productId){
+  if(!confirm('🗑️ Bạn có chắc muốn xóa sản phẩm này không?\n\nHành động này không thể hoàn tác!')){
+    return;
+  }
+  
+  try{
+    await api(`/products/${productId}`, {method: 'DELETE'});
+    alert('✅ Đã xóa sản phẩm thành công!');
+    renderProducts();
+  }catch(e){
+    alert('❌ Lỗi xóa sản phẩm: ' + e.message);
+  }
+}
+
+// Categories Management  
+async function renderCategories(){
+  try{
+    await loadCategories();
+    
+    $('#panel').innerHTML = `
+      <div class="card">
+        <h3>🏷️ Thêm danh mục mới</h3>
+        <div class="row">
+          <input id="cat_name" placeholder="Tên danh mục" style="flex:2">
+          <input id="cat_slug" placeholder="slug-url" style="flex:1">
+          <button class="btn" id="cat_add">➕ Thêm</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>📋 Danh sách danh mục (${categories.length})</h3>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Tên</th><th>Slug</th><th>Mô tả</th><th>Thao tác</th></tr>
+          </thead>
+          <tbody>
+            ${categories.map(cat => `
+              <tr>
+                <td>${cat.id}</td>
+                <td><input value="${cat.name}" data-id="${cat.id}" data-field="name" style="border:1px solid #ddd;padding:8px;border-radius:4px"></td>
+                <td><code>${cat.slug}</code></td>
+                <td><input value="${cat.description || ''}" data-id="${cat.id}" data-field="description" style="border:1px solid #ddd;padding:8px;border-radius:4px"></td>
+                <td>
+                  <div class="row" style="gap:8px">
+                    <button class="btn-outline btn-sm" data-save="${cat.id}">💾 Lưu</button>
+                    <button class="btn-danger btn-sm" data-del-cat="${cat.id}">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    
+    $('#cat_add').onclick = async ()=>{
+      const name = $('#cat_name').value.trim();
+      const slug = $('#cat_slug').value.trim();
+      if(!name || !slug) return alert('❌ Nhập đủ tên và slug');
+      
+      try{
+        await api('/categories', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, slug})
+        });
+        alert('✅ Thêm danh mục thành công!');
+        renderCategories();
+      }catch(e){
+        alert('❌ ' + e.message);
+      }
+    };
+    
+    // Handle category save/delete
+    $('#panel').addEventListener('click', async (e) => {
+      const saveId = e.target.getAttribute('data-save');
+      const delId = e.target.getAttribute('data-del-cat');
+      
+      if(saveId){
+        const row = e.target.closest('tr');
+        const name = row.querySelector('[data-field="name"]').value;
+        const description = row.querySelector('[data-field="description"]').value;
+        
+        try{
+          await api(`/categories/${saveId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, description})
+          });
+          alert('✅ Cập nhật danh mục thành công!');
+          await loadCategories();
+        }catch(e){
+          alert('❌ ' + e.message);
+        }
+      }
+      
+      if(delId && confirm('🗑️ Xóa danh mục này?')){
+        try{
+          await api(`/categories/${delId}`, {method: 'DELETE'});
+          alert('✅ Đã xóa danh mục!');
+          renderCategories();
+        }catch(e){
+          alert('❌ ' + e.message);
+        }
+      }
+    });
+    
+  }catch(e){
+    $('#panel').innerHTML = `<div class="card"><p>❌ Lỗi: ${e.message}</p></div>`;
+  }
+}
+
+// Upload Management
 function renderUpload(){
   $('#panel').innerHTML = `
     <div class="card">
-      <h3>Upload ảnh (R2)</h3>
-      <input id="files" type="file" multiple accept="image/*">
-      <button id="btnUp" class="btn">Upload</button>
-      <div id="result" class="row mt-2"></div>
+      <h3>📁 Upload hình ảnh lẻ</h3>
+      <p style="color:#6b7280;margin-bottom:16px">Upload ảnh để sử dụng trong sản phẩm hoặc nội dung khác</p>
+      
+      <div class="drag-drop" id="bulkDrop">
+        <div>Kéo thả nhiều hình ảnh vào đây hoặc <strong>click để chọn</strong></div>
+        <div style="font-size:12px;color:#6b7280;margin-top:8px">Hỗ trợ: JPG, PNG, WebP. Tối đa 5MB/file.</div>
+      </div>
+      <input type="file" id="bulkInput" multiple accept="image/*" style="display:none">
+      
+      <div id="uploadResults" style="margin-top:20px"></div>
     </div>`;
-  $('#btnUp').onclick = async ()=>{
-    const fd = new FormData(); for(const f of $('#files').files) fd.append('files', f);
-    const res = await api('/upload', {method:'POST', body: fd});
-    $('#result').innerHTML = res.files.map(f=>`<a href="${f.url}" target="_blank">${f.key}</a>`).join('<br>');
+  
+  const dropZone = $('#bulkDrop');
+  const fileInput = $('#bulkInput');
+  
+  dropZone.onclick = () => fileInput.click();
+  
+  dropZone.ondragover = (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
   };
+  
+  dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+  
+  dropZone.ondrop = (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleBulkUpload(e.dataTransfer.files);
+  };
+  
+  fileInput.onchange = (e) => handleBulkUpload(e.target.files);
 }
 
-const app = document.getElementById('app');
+async function handleBulkUpload(files){
+  const results = $('#uploadResults');
+  results.innerHTML = '<p>📤 Đang upload...</p>';
+  
+  const formData = new FormData();
+  for(const file of files){
+    formData.append('files', file);
+  }
+  
+  try{
+    const result = await api('/upload', {method: 'POST', body: formData});
+    results.innerHTML = `
+      <h4>✅ Upload thành công ${result.files.length} file(s):</h4>
+      <div class="image-gallery">
+        ${result.files.map(f => `
+          <div class="card" style="padding:12px;text-align:center">
+            <img src="${f.url}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px">
+            <div style="font-size:12px;word-break:break-all">
+              <input value="${f.url}" readonly style="width:100%;font-size:11px;padding:4px" onclick="this.select()">
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  }catch(e){
+    results.innerHTML = `<p style="color:#dc2626">❌ Upload thất bại: ${e.message}</p>`;
+  }
+}
+
+// Initialize
+const app = $('#app');
 viewDashboard();
+
 </script>
 </body>
 </html>
