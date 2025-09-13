@@ -1,5 +1,5 @@
 {
-  "name": "yensao-workers",
+  "name": "yensaodaklak",
   "main": "src/worker.ts",
   "compatibility_date": "2025-09-13",
   "assets": {
@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "yensao",
-      "database_id": "REPLACE_WITH_YOUR_D1_ID"
+      "database_id": "14c1f0cd-dde0-49fd-b5ec-db76bf32e23e"
     }
   ]
 }
