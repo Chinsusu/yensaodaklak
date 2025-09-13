@@ -35,23 +35,82 @@ app.get("/api/categories", async (c) => {
 // Admin API routes
 app.route("/api/admin", adminApp)
 
-// Handle admin UI specifically before wildcard route
-app.get("/admin", async (c) => {
-  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
-  return adminHtml
+// Enhanced homepage with product navigation
+app.get("/", async (c) => {
+  // Get original homepage
+  const originalResponse = await c.env.ASSETS.fetch(new Request(new URL("/index.html", c.req.url).toString()))
+  let html = await originalResponse.text()
+  
+  // Inject product navigation script before closing </body> tag
+  const scriptToInject = `
+    <script>
+    // Product click functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const productSlugs = {
+        'Yến chưng hũ 70 ml': 'yen-chung-hu-70ml',
+        'Yến chưng hũ 100 ml': 'yen-chung-hu-100ml', 
+        'Yến tinh sạch 50 g': 'yen-tinh-sach-50g',
+        'Yến thô 100 g': 'yen-tho-100g',
+        'Combo quà tặng': 'combo-qua-tang',
+        'Set dùng thử': 'set-dung-thu'
+      };
+      
+      // Find product elements by onclick attributes (existing GA4 tracking)
+      const productElements = document.querySelectorAll('[onclick*="gtag"]');
+      console.log('Found', productElements.length, 'product elements');
+      
+      productElements.forEach(element => {
+        const text = element.textContent || '';
+        let slug = null;
+        
+        // Match product by name
+        Object.keys(productSlugs).forEach(name => {
+          if (text.includes(name)) {
+            slug = productSlugs[name];
+          }
+        });
+        
+        if (slug) {
+          // Add click handler
+          element.style.cursor = 'pointer';
+          element.style.transition = 'all 0.2s ease';
+          
+          // Store original onclick
+          const originalOnclick = element.onclick;
+          
+          element.onclick = function(e) {
+            // Execute original GA4 tracking
+            if (originalOnclick) originalOnclick.call(this, e);
+            
+            // Navigate to product page
+            setTimeout(() => {
+              window.location.href = '/product/' + slug;
+            }, 100);
+          };
+          
+          // Add hover effect
+          element.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.boxShadow = '0 4px 12px rgba(200, 161, 90, 0.2)';
+          });
+          
+          element.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '';
+          });
+          
+          console.log('Enhanced product:', text.substring(0, 30) + '... -> /product/' + slug);
+        }
+      });
+    });
+    </script>
+  `;
+  
+  // Inject script before closing body tag
+  html = html.replace('</body>', scriptToInject + '\n</body>');
+  
+  return c.html(html);
 })
-
-app.get("/admin/", async (c) => {
-  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
-  return adminHtml
-})
-
-// Serve static assets (HTML, CSS, JS, images) - this should be last
-app.get("*", async (c) => {
-  return c.env.ASSETS.fetch(c.req.raw)
-})
-
-export default app
 
 // Product detail page route
 app.get("/product/:slug", async (c) => {
@@ -141,26 +200,27 @@ app.get("/product/:slug", async (c) => {
           </div>
         </div>
       </div>
-      
-      <!-- GA4 Script -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXX"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXX');
-        
-        // Track product view
-        gtag('event', 'view_item', {
-          item_id: '${product.slug}',
-          item_name: '${product.name}',
-          currency: 'VND',
-          value: ${product.price}
-        });
-      </script>
     </body>
     </html>
   `
   
   return c.html(html)
 })
+
+// Handle admin UI specifically
+app.get("/admin", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  return adminHtml
+})
+
+app.get("/admin/", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  return adminHtml
+})
+
+// Serve static assets (HTML, CSS, JS, images) - this should be LAST
+app.get("*", async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw)
+})
+
+export default app
