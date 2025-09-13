@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PRODUCT_NAME}} - Yến Sào Đăk Lăk</title>
+    <meta name="description" content="{{PRODUCT_DESCRIPTION}} - Yến Sào Đăk Lăk chất lượng cao">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{PRODUCT_NAME}} - Yến Sào Đăk Lăk">
+    <meta property="og:description" content="{{PRODUCT_DESCRIPTION}}">
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://yensaodaklak.vn/product/{{PRODUCT_SLUG}}">
+    <meta property="og:image" content="https://yensaodaklak.vn{{PRODUCT_IMAGE}}">
+
+    <!-- CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #faf7f0;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #4B3A2B, #6B5B4B);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #C8A15A;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #C8A15A;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main content */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 4rem;
+        }
+
+        .product-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 4rem;
+        }
+
+        /* Product images */
+        .product-images {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            overflow: hidden;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .thumbnail-images {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .thumbnail:hover {
+            opacity: 0.7;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* Product info */
+        .product-info {
+            padding: 1rem 0;
+        }
+
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4B3A2B;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            color: #C8A15A;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .product-description {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        /* Product specs */
+        .product-specs {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .product-specs h3 {
+            color: #4B3A2B;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .specs-list {
+            list-style: none;
+        }
+
+        .specs-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .specs-list li:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            font-weight: 500;
+            color: #4B3A2B;
+        }
+
+        .spec-value {
+            color: #666;
+        }
+
+        /* Add to cart section */
+        .add-to-cart-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quantity-label {
+            font-weight: 500;
+            color: #4B3A2B;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            background: #f5f5f5;
+            border: none;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .quantity-input {
+            border: none;
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            font-size: 1.1rem;
+            background: white;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            background: #C8A15A;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #b8925a;
+        }
+
+        .add-to-cart-btn.in-cart {
+            background: #10b981;
+        }
+
+        .buy-now-btn {
+            width: 100%;
+            background: white;
+            color: #4B3A2B;
+            padding: 1rem 2rem;
+            border: 2px solid #C8A15A;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+        }
+
+        .buy-now-btn:hover {
+            background: #fef7ed;
+        }
+
+        /* Product details tabs */
+        .product-details {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #C8A15A;
+            border-bottom-color: #C8A15A;
+        }
+
+        .tab-content {
+            padding: 2rem;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Footer */
+        .footer {
+            background: #4B3A2B;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .product-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .product-title {
+                font-size: 2rem;
+            }
+
+            .product-price {
+                font-size: 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .main-container {
+                padding: 0 15px 2rem;
+            }
+
+            .add-to-cart-section,
+            .product-specs {
+                padding: 1rem;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .tab {
+                padding: 0.8rem 1.5rem;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">🥄 Yến Sào Đăk Lăk</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/products">Sản phẩm</a></li>
+                    <li><a href="/about">Về chúng tôi</a></li>
+                    <li><a href="/contact">Liên hệ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="/">Trang chủ</a> / <a href="/products">Sản phẩm</a> / {{PRODUCT_NAME}}
+    </nav>
+
+    <!-- Main content -->
+    <main class="main-container">
+        <!-- Product layout -->
+        <div class="product-layout">
+            <!-- Product images -->
+            <div class="product-images">
+                <div class="main-image" id="main-image">
+                    {{#PRODUCT_IMAGE}}
+                    <img src="{{PRODUCT_IMAGE}}" alt="{{PRODUCT_NAME}}" id="main-img">
+                    {{/PRODUCT_IMAGE}}
+                    {{^PRODUCT_IMAGE}}
+                    🥄
+                    {{/PRODUCT_IMAGE}}
+                </div>
+                
+                <div class="thumbnail-images">
+                    {{#PRODUCT_IMAGES}}
+                    <div class="thumbnail" onclick="changeMainImage('{{.}}')">
+                        <img src="{{.}}" alt="{{PRODUCT_NAME}}">
+                    </div>
+                    {{/PRODUCT_IMAGES}}
+                    {{^PRODUCT_IMAGES}}
+                    <div class="thumbnail">🥄</div>
+                    <div class="thumbnail">🥄</div>
+                    <div class="thumbnail">🥄</div>
+                    {{/PRODUCT_IMAGES}}
+                </div>
+            </div>
+
+            <!-- Product info -->
+            <div class="product-info">
+                <h1 class="product-title">{{PRODUCT_NAME}}</h1>
+                <div class="product-price">{{PRODUCT_PRICE_FORMATTED}}</div>
+                
+                <div class="product-description">
+                    {{PRODUCT_DESCRIPTION}}
+                </div>
+
+                <!-- Product specs -->
+                <div class="product-specs">
+                    <h3>🔍 Thông tin sản phẩm</h3>
+                    <ul class="specs-list">
+                        {{#PRODUCT_SPECS}}
+                        <li>
+                            <span class="spec-label">{{label}}</span>
+                            <span class="spec-value">{{value}}</span>
+                        </li>
+                        {{/PRODUCT_SPECS}}
+                        {{^PRODUCT_SPECS}}
+                        <li>
+                            <span class="spec-label">Xuất xứ</span>
+                            <span class="spec-value">Đăk Lăk, Việt Nam</span>
+                        </li>
+                        <li>
+                            <span class="spec-label">Loại sản phẩm</span>
+                            <span class="spec-value">Yến sào tự nhiên</span>
+                        </li>
+                        <li>
+                            <span class="spec-label">Bảo quản</span>
+                            <span class="spec-value">Nơi khô ráo, thoáng mát</span>
+                        </li>
+                        <li>
+                            <span class="spec-label">Hạn sử dụng</span>
+                            <span class="spec-value">24 tháng</span>
+                        </li>
+                        {{/PRODUCT_SPECS}}
+                    </ul>
+                </div>
+
+                <!-- Add to cart section -->
+                <div class="add-to-cart-section">
+                    <div class="quantity-selector">
+                        <span class="quantity-label">Số lượng:</span>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="99">
+                            <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                        </div>
+                    </div>
+
+                    <button class="add-to-cart-btn" id="add-to-cart-btn" onclick="addToCart()">
+                        🛒 Thêm vào giỏ hàng
+                    </button>
+
+                    <a href="#" class="buy-now-btn" onclick="buyNow(); return false;">
+                        📱 Mua ngay qua WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product details -->
+        <div class="product-details">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('description')">Mô tả</div>
+                <div class="tab" onclick="showTab('benefits')">Công dụng</div>
+                <div class="tab" onclick="showTab('usage')">Cách dùng</div>
+                <div class="tab" onclick="showTab('reviews')">Đánh giá</div>
+            </div>
+
+            <div id="description" class="tab-content active">
+                <h3>📝 Mô tả sản phẩm</h3>
+                <p>{{PRODUCT_LONG_DESCRIPTION}}</p>
+            </div>
+
+            <div id="benefits" class="tab-content">
+                <h3>✨ Công dụng</h3>
+                <ul>
+                    <li>🌟 Bồi bổ sức khỏe, tăng cường sức đề kháng</li>
+                    <li>💎 Làm đẹp da, chống lão hóa tự nhiên</li>
+                    <li>🧠 Bổ não, tăng cường trí nhớ</li>
+                    <li>💪 Phục hồi sức khỏe sau ốm</li>
+                    <li>🤱 Tốt cho bà mẹ sau sinh</li>
+                </ul>
+            </div>
+
+            <div id="usage" class="tab-content">
+                <h3>🥄 Cách sử dụng</h3>
+                <p>Dùng trực tiếp hoặc pha với nước ấm. Nên dùng vào buổi sáng khi bụng đói hoặc trước khi đi ngủ để có hiệu quả tốt nhất.</p>
+                <p><strong>Liều dùng:</strong> 1-2 lần/ngày, mỗi lần 10-15g đối với người lớn.</p>
+            </div>
+
+            <div id="reviews" class="tab-content">
+                <h3>⭐ Đánh giá khách hàng</h3>
+                <p>Sản phẩm chất lượng cao, được khách hàng tin tưởng và sử dụng trong nhiều năm.</p>
+                <p><em>Liên hệ để được tư vấn chi tiết về sản phẩm phù hợp với bạn.</em></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Yến Sào Đăk Lăk. Sản phẩm yến sào chất lượng cao.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/cart.js"></script>
+    <script src="/js/cart-ui.js"></script>
+    <script>
+        // Product data
+        const productData = {
+            id: '{{PRODUCT_ID}}',
+            name: '{{PRODUCT_NAME}}',
+            price: {{PRODUCT_PRICE}},
+            image: '{{PRODUCT_IMAGE}}',
+            unit: 'hộp'
+        };
+
+        // Change main image
+        function changeMainImage(imageSrc) {
+            const mainImg = document.getElementById('main-img');
+            if (mainImg) {
+                mainImg.src = imageSrc;
+            }
+        }
+
+        // Change quantity
+        function changeQuantity(delta) {
+            const quantityInput = document.getElementById('quantity');
+            let currentValue = parseInt(quantityInput.value);
+            let newValue = currentValue + delta;
+            
+            if (newValue < 1) newValue = 1;
+            if (newValue > 99) newValue = 99;
+            
+            quantityInput.value = newValue;
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Add to cart
+        function addToCart() {
+            if (!window.yenSaoCart) {
+                console.warn('Cart not initialized yet');
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const button = document.getElementById('add-to-cart-btn');
+            
+            // Add multiple items to cart
+            for (let i = 0; i < quantity; i++) {
+                window.yenSaoCart.addItem(productData);
+            }
+
+            // Update button state
+            button.textContent = `✓ Đã thêm ${quantity} sản phẩm`;
+            button.classList.add('in-cart');
+            
+            // Show cart sidebar
+            if (window.yenSaoCartUI) {
+                window.yenSaoCartUI.openCart();
+            }
+
+            setTimeout(() => {
+                button.textContent = '🛒 Thêm vào giỏ hàng';
+                button.classList.remove('in-cart');
+            }, 3000);
+
+            // GA4 tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'add_to_cart', {
+                    currency: 'VND',
+                    value: productData.price * quantity,
+                    items: [{
+                        item_id: productData.id,
+                        item_name: productData.name,
+                        quantity: quantity,
+                        price: productData.price
+                    }]
+                });
+            }
+        }
+
+        // Buy now
+        function buyNow() {
+            if (!window.yenSaoCart) {
+                console.warn('Cart not initialized yet');
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById('quantity').value);
+            
+            // Clear cart and add this product
+            window.yenSaoCart.clearCart();
+            for (let i = 0; i < quantity; i++) {
+                window.yenSaoCart.addItem(productData);
+            }
+            
+            // Order via WhatsApp
+            window.yenSaoCart.orderViaWhatsApp();
+
+            // GA4 tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'purchase', {
+                    currency: 'VND',
+                    value: productData.price * quantity,
+                    items: [{
+                        item_id: productData.id,
+                        item_name: productData.name,
+                        quantity: quantity,
+                        price: productData.price
+                    }]
+                });
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🛒 Product page initialized');
+            
+            // Handle quantity input changes
+            document.getElementById('quantity').addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (isNaN(value) || value < 1) {
+                    this.value = 1;
+                } else if (value > 99) {
+                    this.value = 99;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
