@@ -255,12 +255,14 @@ document.addEventListener("DOMContentLoaded", function() {
   console.log("[yensao] product navigation script loaded");
   
   const productSlugs = {
-    "Yến chưng hũ 70 ml": "yen-chung-hu-70ml",
-    "Yến chưng hũ 100 ml": "yen-chung-hu-100ml", 
-    "Yến tinh sạch 50 g": "yen-tinh-sach-50g",
-    "Yến thô 100 g": "yen-tho-100g",
-    "Combo quà tặng": "combo-qua-tang",
-    "Set dùng thử": "set-dung-thu"
+    "70ml": "yen-chung-hu-70ml",
+    "70 ml": "yen-chung-hu-70ml",
+    "100ml": "yen-chung-hu-100ml",
+    "100 ml": "yen-chung-hu-100ml", 
+    "50 g": "yen-tinh-sach-50g",
+    "100 g": "yen-tho-100g",
+    "quà tặng": "combo-qua-tang",
+    "dùng thử": "set-dung-thu"
   };
   
   document.addEventListener("click", function(e) {
@@ -270,10 +272,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const text = element.textContent || "";
     let slug = null, productName = null;
     
-    Object.keys(productSlugs).forEach(name => {
-      if (text.includes(name)) {
-        productName = name;
-        slug = productSlugs[name];
+    Object.keys(productSlugs).forEach(keyword => {
+      if (text.toLowerCase().includes(keyword.toLowerCase())) {
+        productName = keyword;
+        slug = productSlugs[keyword];
       }
     });
     
