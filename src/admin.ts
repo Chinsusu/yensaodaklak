@@ -224,7 +224,7 @@ adminApp.post('/upload', async (c) => {
     await c.env.MEDIA!.put(key, file.stream(), {
       httpMetadata: { contentType: file.type || 'image/webp' },
     })
-    const url = `/api/admin/proxy/${encodeURIComponent(key)}`
+    const url = `/media/${key}`
     results.push({ key, url })
   }
   return c.json({ ok: true, files: results })

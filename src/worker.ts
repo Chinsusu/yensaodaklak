@@ -258,6 +258,31 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Serve static assets (HTML, CSS, JS, images) - this should be LAST
+// Public image proxy for admin-uploaded images
+app.get("/media/*", async (c) => {
+  if (!c.env.MEDIA) return c.notFound()
+  
+  // Extract image path from /media/products/filename.webp
+  const imagePath = c.req.path.replace("/media/", "")
+  
+  try {
+    const obj = await c.env.MEDIA.get(imagePath)
+    if (!obj) return c.notFound()
+    
+    return new Response(obj.body, {
+      headers: {
+        "Content-Type": obj.httpMetadata?.contentType || "image/webp",
+        "Cache-Control": "public, max-age=31536000", // 1 year cache for images
+        "ETag": obj.etag || ""
+      }
+    })
+  } catch (error) {
+    console.error("Error serving media:", error)
+    return c.notFound()
+  }
+})
+
+
 app.get("*", async (c) => {
   const url = new URL(c.req.url)
   if (url.pathname === '/') {
