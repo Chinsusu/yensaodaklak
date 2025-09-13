@@ -95,6 +95,102 @@ app.get("/admin", async (c) => {
   return adminHtml
 })
 
+// Product detail page route
+app.get("/product/:slug", async (c) => {
+  const slug = c.req.param("slug")
+  
+  // Try to get product from KV storage
+  let product = null
+  if (c.env.YENSAO_KV) {
+    const products = await c.env.YENSAO_KV.get("prods")
+    if (products) {
+      const data = JSON.parse(products)
+      product = data.find(p => p.slug === slug && p.status === "active")
+    }
+  }
+  
+  // Fallback to static product data
+  const staticProducts = {
+    "yen-chung-hu-70ml": { name: "Yến chưng hũ 70ml", price: 89000, desc: "Dung tích: 70 ml" },
+    "yen-chung-hu-100ml": { name: "Yến chưng hũ 100ml", price: 109000, desc: "Dung tích: 100 ml" },
+    "yen-tinh-sach-50g": { name: "Yến tinh sạch 50g", price: 1290000, desc: "Khối lượng: 50 g" },
+    "yen-tho-100g": { name: "Yến thô 100g", price: 2350000, desc: "Khối lượng: 100 g" },
+    "combo-qua-tang": { name: "Combo quà tặng", price: 1990000, desc: "Yến chưng + yến tinh" },
+    "set-dung-thu": { name: "Set dùng thử", price: 249000, desc: "3 hũ x 70 ml" }
+  }
+  
+  if (!product && staticProducts[slug]) {
+    product = { 
+      slug, 
+      ...staticProducts[slug],
+      images: [],
+      long_desc: staticProducts[slug].desc
+    }
+  }
+  
+  if (!product) {
+    return c.redirect("/")
+  }
+  
+  const html = `
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${product.name} - Yến Sào Đăk Lăk</title>
+      <link rel="stylesheet" href="/styles.css">
+      <style>
+        body { font-family: "Be Vietnam Pro", sans-serif; background: #faf7f0; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .product-detail { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .price { font-size: 24px; color: #C8A15A; font-weight: bold; margin: 16px 0; }
+        .btn { background: #C8A15A; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #b8925a; }
+        .back-link { color: #666; text-decoration: none; margin-bottom: 20px; display: inline-block; }
+        .back-link:hover { color: #C8A15A; }
+        .product-image { width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <a href="/" class="back-link">← Quay lại trang chủ</a>
+        
+        <div class="product-detail">
+          ${product.images && product.images[0] ? 
+            `<img src="${product.images[0]}" alt="${product.name}" class="product-image">` : 
+            `<div style="width:100%; height:200px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; color:#999;">Chưa có hình ảnh</div>`
+          }
+          
+          <h1>${product.name}</h1>
+          <div class="price">${new Intl.NumberFormat("vi-VN").format(product.price)}₫</div>
+          
+          <p style="color: #666; font-size: 16px;">${product.long_desc || product.desc || ""}</p>
+          
+          <div style="margin-top: 24px;">
+            <a href="tel:1900xxxx" class="btn">📞 Liên hệ đặt hàng</a>
+            <a href="https://wa.me/1900xxxx?text=${encodeURIComponent("Tôi muốn đặt " + product.name)}" class="btn" style="margin-left: 12px;">💬 WhatsApp</a>
+          </div>
+          
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h3>Thông tin sản phẩm</h3>
+            <ul style="color: #666;">
+              <li>✅ Nguồn gốc: Yến nhà trên đảo Phú Quốc</li>
+              <li>✅ Quy trình sơ chế, chưng đúng kỹ thuật</li>
+              <li>✅ Giữ nguyên thành phần tự nhiên</li>
+              <li>✅ COA theo lô sản xuất</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+  
+  return c.html(html)
+})
+
+
 app.get("/admin/", async (c) => {
   const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
   return adminHtml
