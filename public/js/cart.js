@@ -376,6 +376,17 @@ document.addEventListener('DOMContentLoaded', function() {
   window.yenSaoCart = new YenSaoCart();
   
   console.log('🛒 Cart system ready');
+  
+  // Debug: Test cart functionality
+  setTimeout(() => {
+    if (window.yenSaoCart) {
+      console.log("🔍 Debug: Cart exists, testing add item...");
+      const testItem = { id: "test", name: "Test Item", price: 100000 };
+      window.yenSaoCart.addItem(testItem);
+      const cart = window.yenSaoCart.getCart();
+      console.log("🔍 Debug: Cart after test add:", cart);
+    }
+  }, 2000);
 });
 
 // Handle page visibility changes to sync cart state

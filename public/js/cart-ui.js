@@ -20,6 +20,15 @@ class YenSaoCartUI {
     }
     
     console.log('🎨 Cart UI initialized');
+    
+    // Debug: Check if elements were created
+    setTimeout(() => {
+      const sidebar = document.getElementById("cart-sidebar");
+      console.log("🔍 Debug: Cart sidebar exists:", !!sidebar);
+      if (sidebar) {
+        console.log("🔍 Debug: Sidebar HTML:", sidebar.innerHTML.substring(0, 100));
+      }
+    }, 1000);
   }
 
   /**
