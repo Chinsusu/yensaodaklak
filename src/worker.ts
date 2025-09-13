@@ -35,76 +35,22 @@ app.get("/api/categories", async (c) => {
 // Admin API routes
 app.route("/api/admin", adminApp)
 
-// Enhanced homepage with product navigation
-app.get("/", async (c) => {
-  // Get original homepage
-  const originalResponse = await c.env.ASSETS.fetch(new Request(new URL("/index.html", c.req.url).toString()))
-  let html = await originalResponse.text()
-  
-  // Inject product navigation script before closing </body> tag
-  const scriptToInject = `
-    <script>
-    (function(){
-      function normalize(s){
-        return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-      }
-      const map = new Map([
-        ['yen chung hu 70 ml','yen-chung-hu-70ml'],
-        ['yen chung hu 70ml','yen-chung-hu-70ml'],
-        ['yen chung hu 70','yen-chung-hu-70ml'],
-        ['yen chung hu 100 ml','yen-chung-hu-100ml'],
-        ['yen chung hu 100ml','yen-chung-hu-100ml'],
-        ['yen chung hu 100','yen-chung-hu-100ml'],
-        ['yen tinh sach 50 g','yen-tinh-sach-50g'],
-        ['yen tinh sach 50g','yen-tinh-sach-50g'],
-        ['yen tho 100 g','yen-tho-100g'],
-        ['yen tho 100g','yen-tho-100g'],
-        ['combo qua tang','combo-qua-tang'],
-        ['set dung thu','set-dung-thu']
-      ]);
-      function guessSlugFromText(text){
-        const t = normalize(text);
-        for(const [k,v] of map){ if(t.includes(k)) return v; }
-        return null;
-      }
-      function findContainer(el, max=6){
-        let e=el, d=0; while(e && d<max){ if(e.matches && (e.matches('.product-card, article, .card, .grid > div') || e.getAttribute('onclick'))) return e; e=e.parentElement; d++; } return el;
-      }
-      document.addEventListener('click', function(ev){
-        const target = ev.target; if(!(target instanceof Element)) return;
-        const txtNorm = normalize(target.textContent||'');
-        if(txtNorm==='them' || txtNorm==='them vao gio') return; // ignore cart buttons
-        const nearText = (target.closest('[onclick]')?.textContent || '') + ' ' + (findContainer(target).innerText || '');
-        const slug = guessSlugFromText(nearText);
-        if(!slug) return;
-        ev.preventDefault(); ev.stopPropagation();
-        try{ if(typeof gtag!=='undefined'){ gtag('event','select_item',{ item_list_id:'homepage_products', items:[{ item_id: slug }] }); } }catch(e){}
-        window.location.href = '/product/' + slug;
-      }, true);
-      console.log('[yensao] click enhancer active');
-    })();
-    </script>
-`
-  
-  return c.html(html)
-})
-
-// Handle admin UI specifically
+// Handle admin UI specifically before wildcard route
 app.get("/admin", async (c) => {
   const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
-  const response = new Response(adminHtml.body, {
-    headers: {
-      ...Object.fromEntries(adminHtml.headers),
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Pragma": "no-cache",
-      "Expires": "0"
-    }
-  })
-  return response
-})
+  return adminHtml
 })
 
-// Product detail page route
+app.get("/admin/", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  return adminHtml
+})
+
+// Serve static assets (HTML, CSS, JS, images) - this should be last
+app.get("*", async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw)
+})
+
 app.get("/product/:slug", async (c) => {
   const slug = c.req.param("slug")
   
@@ -155,7 +101,6 @@ app.get("/product/:slug", async (c) => {
   if (product.images && Array.isArray(product.images)) {
     product.images = product.images.map(convertImageUrl)
   }
-
 
   const html = `
     <!DOCTYPE html>
@@ -216,82 +161,6 @@ app.get("/product/:slug", async (c) => {
 })
 
 
-app.get("/admin/", async (c) => {
-  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
-  const response = new Response(adminHtml.body, {
-    headers: {
-      ...Object.fromEntries(adminHtml.headers),
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Pragma": "no-cache",
-      "Expires": "0"
-    }
-  })
-  return response
-})
-})
-
-
-// Serve product-navigation.js
-app.get("/product-navigation.js?v=3", async (c) => {
-  const script = `// Product navigation for homepage
-document.addEventListener("DOMContentLoaded", function() {
-  console.log("[yensao] product navigation script loaded");
-  
-  const productSlugs = {
-    "70ml": "yen-chung-hu-70ml",
-    "100ml": "yen-chung-hu-100ml",
-    "50g": "yen-tinh-sach-50g", 
-    "100g": "yen-tho-100g",
-    "combo": "combo-qua-tang",
-    "set": "set-dung-thu"
-  };
-  
-  document.addEventListener("click", function(e) {
-    const element = e.target.closest("div");
-    if (!element) return;
-    
-    const text = element.textContent || "";
-    let slug = null, productName = null;
-    
-    Object.keys(productSlugs).forEach(keyword => {
-      if (text.toLowerCase().includes(keyword.toLowerCase())) {
-        productName = keyword;
-        slug = productSlugs[keyword];
-      }
-    });
-    
-    if (slug) {
-      console.log("[yensao] product clicked:", productName);
-      e.preventDefault();
-      e.stopPropagation();
-      
-      if (typeof gtag !== "undefined") {
-        gtag("event", "select_item", {
-          item_list_id: "homepage_products",
-          item_list_name: "Homepage Products",
-          items: [{
-            item_id: slug,
-            item_name: productName
-          }]
-        });
-      }
-      
-      window.location.href = "/product/" + slug;
-    }
-  });
-  
-  console.log("[yensao] click enhancer active");
-});`;
-  
-  return new Response(script, {
-    headers: {
-      "Content-Type": "application/javascript; charset=UTF-8",
-      "Cache-Control": "public, max-age=3600"
-    }
-  });
-});
-
-// Serve static assets (HTML, CSS, JS, images) - this should be LAST
 // Public image proxy for admin-uploaded images
 app.get("/media/*", async (c) => {
   if (!c.env.MEDIA) return c.notFound()
@@ -317,19 +186,147 @@ app.get("/media/*", async (c) => {
 })
 
 
-app.get("*", async (c) => {
-  const url = new URL(c.req.url)
-  if (url.pathname === '/') {
-    // Serve index.html with injected navigation script and no-store
-    const res = await c.env.ASSETS.fetch(new Request(new URL('/index.html', url).toString()))
-    let html = await res.text()
-    const scriptTag = '<script src="/product-navigation.js?v=3"></script>'
-    const marker = /<\/body\s*>/i
-    if (marker.test(html)) html = html.replace(marker, scriptTag + '</body>')
-    else html = html + scriptTag
-    return new Response(html, { headers: { 'Content-Type': 'text/html; charset=UTF-8', 'Cache-Control': 'no-store', 'X-Yensao-Injected': 'static-script', 'X-Debug': 'v3-homepage' } })
+// Handle admin UI specifically with no-cache
+app.get("/admin", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  const response = new Response(adminHtml.body, {
+    headers: {
+      ...Object.fromEntries(adminHtml.headers),
+      "Content-Type": "text/html; charset=UTF-8",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache", 
+      "Expires": "0"
+    }
+  })
+  return response
+})
+
+app.get("/admin/", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  const response = new Response(adminHtml.body, {
+    headers: {
+      ...Object.fromEntries(adminHtml.headers),
+      "Content-Type": "text/html; charset=UTF-8",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    }
+  })
+  return response
+})
+
+app.get("/product/:slug", async (c) => {
+  const slug = c.req.param("slug")
+  
+  // Try to get product from KV storage
+  let product = null
+  if (c.env.YENSAO_KV) {
+    const products = await c.env.YENSAO_KV.get("prods")
+    if (products) {
+      const data = JSON.parse(products)
+      product = data.find(p => p.slug === slug && p.status === 'active')
+    }
   }
-  return c.env.ASSETS.fetch(c.req.raw)
+  
+  // Fallback to static product data
+  const staticProducts = {
+    'yen-chung-hu-70ml': { name: 'Yến chưng hũ 70ml', price: 89000, desc: 'Dung tích: 70 ml' },
+    'yen-chung-hu-100ml': { name: 'Yến chưng hũ 100ml', price: 109000, desc: 'Dung tích: 100 ml' },
+    'yen-tinh-sach-50g': { name: 'Yến tinh sạch 50g', price: 1290000, desc: 'Khối lượng: 50 g' },
+    'yen-tho-100g': { name: 'Yến thô 100g', price: 2350000, desc: 'Khối lượng: 100 g' },
+    'combo-qua-tang': { name: 'Combo quà tặng', price: 1990000, desc: 'Yến chưng + yến tinh' },
+    'set-dung-thu': { name: 'Set dùng thử', price: 249000, desc: '3 hũ x 70 ml' }
+  }
+  
+  if (!product && staticProducts[slug]) {
+    product = { 
+      slug, 
+      ...staticProducts[slug],
+      images: [],
+      long_desc: staticProducts[slug].desc
+    }
+  }
+  
+  if (!product) {
+    return c.redirect('/')
+  }
+  
+  const html = `
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${product.name} - Yến Sào Đăk Lăk</title>
+      <link rel="stylesheet" href="/styles.css">
+      <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background: #faf7f0; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .product-detail { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .price { font-size: 24px; color: #C8A15A; font-weight: bold; margin: 16px 0; }
+        .btn { background: #C8A15A; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #b8925a; }
+        .back-link { color: #666; text-decoration: none; margin-bottom: 20px; display: inline-block; }
+        .back-link:hover { color: #C8A15A; }
+        .product-image { width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <a href="/" class="back-link">← Quay lại trang chủ</a>
+        
+        <div class="product-detail">
+          ${product.images && product.images[0] ? 
+            `<img src="${product.images[0]}" alt="${product.name}" class="product-image">` : 
+            '<div style="width:100%; height:200px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; color:#999;">Chưa có hình ảnh</div>'
+          }
+          
+          <h1>${product.name}</h1>
+          <div class="price">${new Intl.NumberFormat('vi-VN').format(product.price)}₫</div>
+          
+          <p style="color: #666; font-size: 16px;">${product.long_desc || product.desc || ''}</p>
+          
+          <div style="margin-top: 24px;">
+            <a href="tel:1900xxxx" class="btn">📞 Liên hệ đặt hàng</a>
+            <a href="https://wa.me/1900xxxx?text=${encodeURIComponent('Tôi muốn đặt ' + product.name)}" class="btn" style="margin-left: 12px;">💬 WhatsApp</a>
+          </div>
+          
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h3>Thông tin sản phẩm</h3>
+            <ul style="color: #666;">
+              <li>✅ Nguồn gốc: Yến nhà trên đảo Phú Quốc</li>
+              <li>✅ Quy trình sơ chế, chưng đúng kỹ thuật</li>
+              <li>✅ Giữ nguyên thành phần tự nhiên</li>
+              <li>✅ COA theo lô sản xuất</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- GA4 Script -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXX"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXX');
+        
+        // Track product view
+        gtag('event', 'view_item', {
+          item_id: '${product.slug}',
+          item_name: '${product.name}',
+          currency: 'VND',
+          value: ${product.price}
+        });
+      </script>
+    </body>
+    </html>
+  `
+  
+  return c.html(html)
 })
 
 export default app
+
+// Product detail page route
+// Product detail page route
