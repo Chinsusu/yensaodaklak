@@ -74,6 +74,15 @@
       backdrop-filter: blur(2px);
     }
   </style>
+  <style>
+    /* Stretched link support for product cards */
+    .isolate { isolation: isolate; }
+    /* Card decorative elements should not intercept clicks */
+    .pointer-events-none { pointer-events: none; }
+    /* Buttons need higher z-index to be clickable above stretched link */
+    .z-20 { z-index: 20; }
+    .z-10 { z-index: 10; }
+  </style>
 </head>
 <body class="min-h-screen font-body text-text site-bg">
   <!-- Navigation -->
@@ -150,63 +159,82 @@
         <a href="/category" class="text-espresso/70 hover:text-espresso">Xem tất cả →</a>
       </div>
       <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Yến chưng hũ 70ml</span></div>
-          <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-chung-70ml', item_name: 'Yến chưng hũ 70 ml'})">Yến chưng hũ 70 ml</h3>
-          <div class="mt-1 text-espresso/70 text-sm">Dung tích: 70 ml</div>
+        <!-- Yến chưng hũ 70 ml -->
+        <article class="relative isolate rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
+          <!-- Stretched link phủ toàn card -->
+          <a href="/product/yen-chung-hu-70ml" class="absolute inset-0 z-10" aria-label="Yến chưng hũ 70 ml"></a>
+          
+          <div class="ratio-1-1 pointer-events-none"><span>Yến chưng hũ 70ml</span></div>
+          <h3 class="mt-3 text-espresso font-medium leading-tight pointer-events-none">Yến chưng hũ 70 ml</h3>
+          <div class="mt-1 text-espresso/70 text-sm pointer-events-none">Dung tích: 70 ml</div>
           <div class="mt-2 flex items-center justify-between">
-            <div class="font-semibold text-espresso">89.000₫</div>
-            <button class="px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 89000, items: [{item_id: 'yen-chung-70ml', item_name: 'Yến chưng hũ 70 ml', quantity: 1, price: 89000}]})">Thêm</button>
+            <div class="font-semibold text-espresso pointer-events-none">89.000₫</div>
+            <button class="relative z-20 px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 89000, items: [{item_id: 'yen-chung-70ml', item_name: 'Yến chưng hũ 70 ml', quantity: 1, price: 89000}]})">Thêm</button>
           </div>
         </article>
         
-        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Yến tinh sạch 50g</span></div>
-          <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-tinh-50g', item_name: 'Yến tinh sạch 50 g'})">Yến tinh sạch 50 g</h3>
-          <div class="mt-1 text-espresso/70 text-sm">Khối lượng: 50 g</div>
+        <!-- Yến tinh sạch 50 g -->
+        <article class="relative isolate rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
+          <a href="/product/yen-tinh-sach-50g" class="absolute inset-0 z-10" aria-label="Yến tinh sạch 50 g"></a>
+          
+          <div class="ratio-1-1 pointer-events-none"><span>Yến tinh sạch 50g</span></div>
+          <h3 class="mt-3 text-espresso font-medium leading-tight pointer-events-none">Yến tinh sạch 50 g</h3>
+          <div class="mt-1 text-espresso/70 text-sm pointer-events-none">Khối lượng: 50 g</div>
           <div class="mt-2 flex items-center justify-between">
-            <div class="font-semibold text-espresso">1.290.000₫</div>
-            <button class="px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 1290000, items: [{item_id: 'yen-tinh-50g', item_name: 'Yến tinh sạch 50 g', quantity: 1, price: 1290000}]})">Thêm</button>
+            <div class="font-semibold text-espresso pointer-events-none">1.290.000₫</div>
+            <button class="relative z-20 px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 1290000, items: [{item_id: 'yen-tinh-50g', item_name: 'Yến tinh sạch 50 g', quantity: 1, price: 1290000}]})">Thêm</button>
           </div>
         </article>
 
-        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Yến thô 100g</span></div>
-          <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-tho-100g', item_name: 'Yến thô 100 g'})">Yến thô 100 g</h3>
-          <div class="mt-1 text-espresso/70 text-sm">Khối lượng: 100 g</div>
+        <!-- Yến thô 100 g -->
+        <article class="relative isolate rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
+          <a href="/product/yen-tho-100g" class="absolute inset-0 z-10" aria-label="Yến thô 100 g"></a>
+          
+          <div class="ratio-1-1 pointer-events-none"><span>Yến thô 100g</span></div>
+          <h3 class="mt-3 text-espresso font-medium leading-tight pointer-events-none">Yến thô 100 g</h3>
+          <div class="mt-1 text-espresso/70 text-sm pointer-events-none">Khối lượng: 100 g</div>
           <div class="mt-2 flex items-center justify-between">
-            <div class="font-semibold text-espresso">2.350.000₫</div>
-            <button class="px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 2350000, items: [{item_id: 'yen-tho-100g', item_name: 'Yến thô 100 g', quantity: 1, price: 2350000}]})">Thêm</button>
+            <div class="font-semibold text-espresso pointer-events-none">2.350.000₫</div>
+            <button class="relative z-20 px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 2350000, items: [{item_id: 'yen-tho-100g', item_name: 'Yến thô 100 g', quantity: 1, price: 2350000}]})">Thêm</button>
           </div>
         </article>
 
-        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Yến chưng hũ 100ml</span></div>
-          <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-chung-100ml', item_name: 'Yến chưng hũ 100 ml'})">Yến chưng hũ 100 ml</h3>
-          <div class="mt-1 text-espresso/70 text-sm">Dung tích: 100 ml</div>
+        <!-- Yến chưng hũ 100 ml -->
+        <article class="relative isolate rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
+          <a href="/product/yen-chung-hu-100ml" class="absolute inset-0 z-10" aria-label="Yến chưng hũ 100 ml"></a>
+          
+          <div class="ratio-1-1 pointer-events-none"><span>Yến chưng hũ 100ml</span></div>
+          <h3 class="mt-3 text-espresso font-medium leading-tight pointer-events-none">Yến chưng hũ 100 ml</h3>
+          <div class="mt-1 text-espresso/70 text-sm pointer-events-none">Dung tích: 100 ml</div>
           <div class="mt-2 flex items-center justify-between">
-            <div class="font-semibold text-espresso">109.000₫</div>
-            <button class="px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 109000, items: [{item_id: 'yen-chung-100ml', item_name: 'Yến chưng hũ 100 ml', quantity: 1, price: 109000}]})">Thêm</button>
+            <div class="font-semibold text-espresso pointer-events-none">109.000₫</div>
+            <button class="relative z-20 px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 109000, items: [{item_id: 'yen-chung-100ml', item_name: 'Yến chưng hũ 100 ml', quantity: 1, price: 109000}]})">Thêm</button>
           </div>
         </article>
 
-        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Combo quà tặng</span></div>
-          <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'combo-gift', item_name: 'Combo quà tặng'})">Combo quà tặng</h3>
-          <div class="mt-1 text-espresso/70 text-sm">Yến chưng + yến tinh</div>
+        <!-- Combo quà tặng -->
+        <article class="relative isolate rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
+          <a href="/product/combo-qua-tang" class="absolute inset-0 z-10" aria-label="Combo quà tặng"></a>
+          
+          <div class="ratio-1-1 pointer-events-none"><span>Combo quà tặng</span></div>
+          <h3 class="mt-3 text-espresso font-medium leading-tight pointer-events-none">Combo quà tặng</h3>
+          <div class="mt-1 text-espresso/70 text-sm pointer-events-none">Yến chưng + yến tinh</div>
           <div class="mt-2 flex items-center justify-between">
-            <div class="font-semibold text-espresso">1.990.000₫</div>
-            <button class="px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 1990000, items: [{item_id: 'combo-gift', item_name: 'Combo quà tặng', quantity: 1, price: 1990000}]})">Thêm</button>
+            <div class="font-semibold text-espresso pointer-events-none">1.990.000₫</div>
+            <button class="relative z-20 px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 1990000, items: [{item_id: 'combo-gift', item_name: 'Combo quà tặng', quantity: 1, price: 1990000}]})">Thêm</button>
           </div>
         </article>
 
-        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Set dùng thử</span></div>
-          <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'trial-set', item_name: 'Set dùng thử'})">Set dùng thử</h3>
-          <div class="mt-1 text-espresso/70 text-sm">3 hũ x 70 ml</div>
+        <!-- Set dùng thử -->
+        <article class="relative isolate rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
+          <a href="/product/set-dung-thu" class="absolute inset-0 z-10" aria-label="Set dùng thử"></a>
+          
+          <div class="ratio-1-1 pointer-events-none"><span>Set dùng thử</span></div>
+          <h3 class="mt-3 text-espresso font-medium leading-tight pointer-events-none">Set dùng thử</h3>
+          <div class="mt-1 text-espresso/70 text-sm pointer-events-none">3 hũ x 70 ml</div>
           <div class="mt-2 flex items-center justify-between">
-            <div class="font-semibold text-espresso">249.000₫</div>
-            <button class="px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 249000, items: [{item_id: 'trial-set', item_name: 'Set dùng thử', quantity: 1, price: 249000}]})">Thêm</button>
+            <div class="font-semibold text-espresso pointer-events-none">249.000₫</div>
+            <button class="relative z-20 px-3 py-2 rounded-lg bg-gold text-white hover:opacity-90" onclick="gtag('event', 'add_to_cart', {currency: 'VND', value: 249000, items: [{item_id: 'trial-set', item_name: 'Set dùng thử', quantity: 1, price: 249000}]})">Thêm</button>
           </div>
         </article>
       </div>
