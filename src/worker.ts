@@ -19,16 +19,19 @@ app.use("/api/*", cors())
 // Admin API routes
 app.route("/api/admin", adminApp)
 
-// Serve static assets (HTML, CSS, JS, images)
+// Handle admin UI specifically before wildcard route
+app.get("/admin", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  return adminHtml
+})
+
+app.get("/admin/", async (c) => {
+  const adminHtml = await c.env.ASSETS.fetch(new Request(new URL("/admin/index.html", c.req.url).toString()))
+  return adminHtml
+})
+
+// Serve static assets (HTML, CSS, JS, images) - this should be last
 app.get("*", async (c) => {
-  const url = new URL(c.req.url)
-  
-  // Handle admin UI
-  if (url.pathname === "/admin" || url.pathname === "/admin/") {
-    return c.env.ASSETS.fetch(new URL("/admin/index.html", url.origin))
-  }
-  
-  // Handle other static assets
   return c.env.ASSETS.fetch(c.req.raw)
 })
 
