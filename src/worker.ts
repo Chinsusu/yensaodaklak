@@ -132,6 +132,22 @@ app.get("/product/:slug", async (c) => {
     return c.redirect("/")
   }
   
+  // Convert old proxy URLs to new media URLs for images
+  function convertImageUrl(url) {
+    if (!url) return url
+    // Convert /api/admin/proxy/products%2Ffile.webp to /media/products/file.webp
+    return url.replace(/^/api/admin/proxy/(.*)$/, (match, encodedPath) => {
+      const decodedPath = decodeURIComponent(encodedPath)
+      return `/media/${decodedPath}`
+    })
+  }
+  
+  // Convert all image URLs in product.images array
+  if (product.images && Array.isArray(product.images)) {
+    product.images = product.images.map(convertImageUrl)
+  }
+
+
   const html = `
     <!DOCTYPE html>
     <html lang="vi">
