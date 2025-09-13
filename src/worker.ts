@@ -247,6 +247,67 @@ app.get("/admin/", async (c) => {
   return adminHtml
 })
 
+
+// Serve product-navigation.js
+app.get("/product-navigation.js", async (c) => {
+  const script = `// Product navigation for homepage
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("[yensao] product navigation script loaded");
+  
+  const productSlugs = {
+    "Yến chưng hũ 70 ml": "yen-chung-hu-70ml",
+    "Yến chưng hũ 100 ml": "yen-chung-hu-100ml", 
+    "Yến tinh sạch 50 g": "yen-tinh-sach-50g",
+    "Yến thô 100 g": "yen-tho-100g",
+    "Combo quà tặng": "combo-qua-tang",
+    "Set dùng thử": "set-dung-thu"
+  };
+  
+  document.addEventListener("click", function(e) {
+    const element = e.target.closest("div");
+    if (!element) return;
+    
+    const text = element.textContent || "";
+    let slug = null, productName = null;
+    
+    Object.keys(productSlugs).forEach(name => {
+      if (text.includes(name)) {
+        productName = name;
+        slug = productSlugs[name];
+      }
+    });
+    
+    if (slug) {
+      console.log("[yensao] product clicked:", productName);
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (typeof gtag !== "undefined") {
+        gtag("event", "select_item", {
+          item_list_id: "homepage_products",
+          item_list_name: "Homepage Products",
+          items: [{
+            item_id: slug,
+            item_name: productName
+          }]
+        });
+      }
+      
+      window.location.href = "/product/" + slug;
+    }
+  });
+  
+  console.log("[yensao] click enhancer active");
+});`;
+  
+  return new Response(script, {
+    headers: {
+      "Content-Type": "application/javascript; charset=UTF-8",
+      "Cache-Control": "public, max-age=3600"
+    }
+  });
+});
+
 // Serve static assets (HTML, CSS, JS, images) - this should be LAST
 app.get("*", async (c) => {
   const url = new URL(c.req.url)
