@@ -230,7 +230,7 @@ app.get("/product/:slug", async (c) => {
         
         // Update button state
         const originalText = button.textContent;
-        button.textContent = `✓ Đã thêm ${quantity} sản phẩm`;
+        button.textContent = "✓ Đã thêm " + quantity + " sản phẩm";
         button.style.background = "#10b981";
         
         // Show cart sidebar
