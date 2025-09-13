@@ -10,25 +10,75 @@
   <meta property="og:title" content="Yến sào chuẩn tinh hoa – nguyên bản, tinh khiết, minh bạch" />
   <meta property="og:description" content="Yến sào: yến chưng hũ, yến thô, yến tinh sạch. Minh bạch COA theo lô, quy trình chuẩn an toàn." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/hero-product.jpg" />
+  <meta property="og:image" content="/images/hero-800.webp" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
   
+  <!-- Preload critical images -->
+  <link rel="preload" as="image" href="/images/hero-600.webp" media="(max-width: 768px)">
+  <link rel="preload" as="image" href="/images/hero-800.webp" media="(min-width: 769px)">
+  
   <link rel="stylesheet" href="/tokens.css">
   <link rel="stylesheet" href="/styles.css">
   
   <style>
+    .hero-bg {
+      background-image: url("/images/background-800.webp");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    
+    @media (min-width: 1200px) {
+      .hero-bg {
+        background-image: url("/images/background-1920.webp");
+      }
+    }
+    
+    @media (min-width: 800px) and (max-width: 1199px) {
+      .hero-bg {
+        background-image: url("/images/background-1200.webp");
+      }
+    }
+    
+    .hero-image {
+      position: relative;
+      width: 100%;
+      padding-top: 100%;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    
+    .hero-image img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius);
+    }
+    
     .ratio-1-1 { 
-      position: relative; width: 100%; padding-top: 100%; 
-      background: #f0eee9; border-radius: var(--radius); 
+      position: relative; 
+      width: 100%; 
+      padding-top: 100%; 
+      background: #f0eee9; 
+      border-radius: var(--radius); 
       box-shadow: var(--shadow-sm); 
     }
+    
     .ratio-1-1 > span { 
-      position: absolute; inset: 0; 
-      display: flex; align-items: center; justify-content: center; 
-      color: #8E8E93; font-size: 12px; 
+      position: absolute; 
+      inset: 0; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #8E8E93; 
+      font-size: 12px; 
     }
   </style>
 </head>
@@ -46,7 +96,7 @@
 
   <main class="mx-auto max-w-6xl px-4">
     <!-- Hero Section -->
-    <section class="py-10 md:py-16">
+    <section class="py-10 md:py-16 hero-bg">
       <div class="grid md:grid-cols-2 gap-8 items-center">
         <div>
           <h1 class="font-heading text-3xl md:text-5xl text-espresso leading-tight">
@@ -64,7 +114,20 @@
             </a>
           </div>
         </div>
-        <div class="ratio-1-1"><span>Ảnh hero (1:1)</span></div>
+        <div class="hero-image">
+          <picture>
+            <source media="(max-width: 400px)" srcset="/images/hero-400.webp">
+            <source media="(max-width: 600px)" srcset="/images/hero-600.webp">
+            <img 
+              src="/images/hero-800.webp" 
+              alt="Yến sào tinh khiết - hũ yến chưng cao cấp trên nền gỗ tự nhiên"
+              width="800" 
+              height="800"
+              loading="eager"
+              decoding="async"
+            >
+          </picture>
+        </div>
       </div>
     </section>
 
@@ -95,7 +158,7 @@
       </div>
       <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
         <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Ảnh 1:1</span></div>
+          <div class="ratio-1-1"><span>Yến chưng hũ 70ml</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-chung-70ml', item_name: 'Yến chưng hũ 70 ml'})">Yến chưng hũ 70 ml</h3>
           <div class="mt-1 text-espresso/70 text-sm">Dung tích: 70 ml</div>
           <div class="mt-2 flex items-center justify-between">
@@ -105,7 +168,7 @@
         </article>
         
         <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Ảnh 1:1</span></div>
+          <div class="ratio-1-1"><span>Yến tinh sạch 50g</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-tinh-50g', item_name: 'Yến tinh sạch 50 g'})">Yến tinh sạch 50 g</h3>
           <div class="mt-1 text-espresso/70 text-sm">Khối lượng: 50 g</div>
           <div class="mt-2 flex items-center justify-between">
@@ -115,7 +178,7 @@
         </article>
 
         <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Ảnh 1:1</span></div>
+          <div class="ratio-1-1"><span>Yến thô 100g</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-tho-100g', item_name: 'Yến thô 100 g'})">Yến thô 100 g</h3>
           <div class="mt-1 text-espresso/70 text-sm">Khối lượng: 100 g</div>
           <div class="mt-2 flex items-center justify-between">
@@ -125,7 +188,7 @@
         </article>
 
         <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Ảnh 1:1</span></div>
+          <div class="ratio-1-1"><span>Yến chưng hũ 100ml</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-chung-100ml', item_name: 'Yến chưng hũ 100 ml'})">Yến chưng hũ 100 ml</h3>
           <div class="mt-1 text-espresso/70 text-sm">Dung tích: 100 ml</div>
           <div class="mt-2 flex items-center justify-between">
@@ -135,7 +198,7 @@
         </article>
 
         <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Ảnh 1:1</span></div>
+          <div class="ratio-1-1"><span>Combo quà tặng</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'combo-gift', item_name: 'Combo quà tặng'})">Combo quà tặng</h3>
           <div class="mt-1 text-espresso/70 text-sm">Yến chưng + yến tinh</div>
           <div class="mt-2 flex items-center justify-between">
@@ -145,7 +208,7 @@
         </article>
 
         <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
-          <div class="ratio-1-1"><span>Ảnh 1:1</span></div>
+          <div class="ratio-1-1"><span>Set dùng thử</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'trial-set', item_name: 'Set dùng thử'})">Set dùng thử</h3>
           <div class="mt-1 text-espresso/70 text-sm">3 hũ x 70 ml</div>
           <div class="mt-2 flex items-center justify-between">
@@ -179,7 +242,7 @@
             Tra cứu COA
           </a>
         </div>
-        <div class="ratio-1-1"><span>Ảnh quy trình</span></div>
+        <div class="ratio-1-1"><span>Ảnh quy trình sản xuất</span></div>
       </div>
     </section>
 
