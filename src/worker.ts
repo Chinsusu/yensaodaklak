@@ -135,7 +135,6 @@ app.get("/product/:slug", async (c) => {
           
           <div style="margin-top: 24px;">
             <a href="tel:1900xxxx" class="btn">📞 Liên hệ đặt hàng</a>
-            <a href="https://wa.me/1900xxxx?text=${encodeURIComponent("Tôi muốn đặt " + product.name)}" class="btn" style="margin-left: 12px;">💬 WhatsApp</a>
           </div>
           
           <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee;">
