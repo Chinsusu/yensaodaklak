@@ -16,6 +16,22 @@ const app = new Hono<{ Bindings: Env }>()
 // Enable CORS for API routes
 app.use("/api/*", cors())
 
+// Public API routes
+app.get("/api/products", async (c) => {
+  if (!c.env.YENSAO_KV) return c.json({ products: [] })
+  const products = await c.env.YENSAO_KV.get("prods")
+  if (!products) return c.json({ products: [] })
+  const data = JSON.parse(products)
+  return c.json({ products: data.filter(p => p.status === "active") })
+})
+
+app.get("/api/categories", async (c) => {
+  if (!c.env.YENSAO_KV) return c.json({ categories: [] })
+  const categories = await c.env.YENSAO_KV.get("cats")
+  if (!categories) return c.json({ categories: [] })
+  return c.json({ categories: JSON.parse(categories) })
+})
+
 // Admin API routes
 app.route("/api/admin", adminApp)
 

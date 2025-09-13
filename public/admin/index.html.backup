@@ -144,7 +144,7 @@ async function renderProducts(){
     <td><input data-id="${p.id}" data-k="slug" value="${p.slug}"></td>
     <td><input data-id="${p.id}" data-k="price" type="number" value="${p.price||0}"></td>
     <td>
-      <div>${(p.images||[]).map((u,i)=>`<a href="${u}" target="_blank" title="${u}">Ảnh ${i+1}</a>`).join(", ")}</div>
+      <div>${(p.images||[]).map(u=>`<a href="${u}" target="_blank">ảnh</a>`).join(', ')}</div>
       <input type="file" multiple accept="image/*" data-upload="${p.id}">
     </td>
     <td><button data-del="${p.id}">Xoá</button> <button data-save="${p.id}" class="btn">Lưu</button></td>

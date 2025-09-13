@@ -1,0 +1,90 @@
+{
+  "categories": [
+    {
+      "name": "Yến chưng hũ",
+      "slug": "yen-chung-hu",
+      "description": "Yến sào đã được chưng sẵn trong hũ, tiện lợi sử dụng",
+      "sort": 1
+    },
+    {
+      "name": "Yến tinh sạch",
+      "slug": "yen-tinh-sach",
+      "description": "Yến sào tinh chế, sạch bẩn, dạng khô",
+      "sort": 2
+    },
+    {
+      "name": "Yến thô",
+      "slug": "yen-tho",
+      "description": "Yến sào nguyên bản chưa qua chế biến",
+      "sort": 3
+    },
+    {
+      "name": "Combo & Set",
+      "slug": "combo-set",
+      "description": "Các combo và set sản phẩm ưu đãi",
+      "sort": 4
+    }
+  ],
+  "products": [
+    {
+      "name": "Yến chưng hũ 70ml",
+      "slug": "yen-chung-hu-70ml",
+      "category_slug": "yen-chung-hu",
+      "price": 89000,
+      "status": "active",
+      "short_desc": "Dung tích: 70 ml",
+      "long_desc": "Yến chưng hũ 70ml tiện lợi, đã được chưng sẵn theo quy trình chuẩn. Thích hợp sử dụng hàng ngày.",
+      "sort": 1
+    },
+    {
+      "name": "Yến chưng hũ 100ml",
+      "slug": "yen-chung-hu-100ml", 
+      "category_slug": "yen-chung-hu",
+      "price": 109000,
+      "status": "active",
+      "short_desc": "Dung tích: 100 ml",
+      "long_desc": "Yến chưng hũ 100ml size lớn, đã được chưng sẵn theo quy trình chuẩn. Phù hợp cho cả gia đình.",
+      "sort": 2
+    },
+    {
+      "name": "Yến tinh sạch 50g",
+      "slug": "yen-tinh-sach-50g",
+      "category_slug": "yen-tinh-sach",
+      "price": 1290000,
+      "status": "active", 
+      "short_desc": "Khối lượng: 50 g",
+      "long_desc": "Yến tinh sạch 50g đã được tinh chế kỹ càng, loại bỏ tạp chất. Chất lượng cao, dưỡng chất tốt nhất.",
+      "sort": 1
+    },
+    {
+      "name": "Yến thô 100g",
+      "slug": "yen-tho-100g",
+      "category_slug": "yen-tho", 
+      "price": 2350000,
+      "status": "active",
+      "short_desc": "Khối lượng: 100 g",
+      "long_desc": "Yến thô 100g nguyên bản, chưa qua chế biến. Giữ nguyên hình dạng và dưỡng chất tự nhiên của yến.",
+      "sort": 1
+    },
+    {
+      "name": "Combo quà tặng",
+      "slug": "combo-qua-tang",
+      "category_slug": "combo-set",
+      "price": 1990000,
+      "status": "active",
+      "short_desc": "Yến chưng + yến tinh",
+      "long_desc": "Combo quà tặng bao gồm yến chưng hũ và yến tinh sạch, thích hợp làm quà biếu sang trọng.",
+      "sort": 1
+    },
+    {
+      "name": "Set dùng thử",
+      "slug": "set-dung-thu",
+      "category_slug": "combo-set",
+      "price": 249000,
+      "status": "active",
+      "short_desc": "3 hũ x 70 ml",
+      "long_desc": "Set dùng thử gồm 3 hũ yến chưng 70ml, giúp bạn trải nghiệm sản phẩm trước khi mua với số lượng lớn.",
+      "sort": 2
+    }
+  ]
+}
