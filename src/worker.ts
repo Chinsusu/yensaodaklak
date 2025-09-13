@@ -109,7 +109,7 @@ app.get("/", async (c) => {
       function findSlugFromNode(node){
         let el = node;
         let depth = 0;
-        while(el and depth < 6): pass
+        while(el && depth < 6) { el = el.parentElement; depth++; }
       }
     })();
     
