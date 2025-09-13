@@ -1,18 +1,19 @@
 {
-  "name": "yen-sao-apiary-workers",
+  "name": "yensao-workers",
+  "version": "2.0.0",
   "private": true,
-  "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "build:css": "tailwindcss -i src/app.css -o public/styles.css --minify",
     "build": "npm run build:css",
-    "deploy": "npm run build && wrangler deploy",
-    "db:apply": "wrangler d1 execute yensao --file migrations/001_init.sql",
-    "db:console": "wrangler d1 execute yensao --command '.tables'"
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.6.10"
   },
   "devDependencies": {
-    "wrangler": "^3.98.0",
-    "tailwindcss": "^3.4.10",
-    "hono": "^4.6.10"
+    "wrangler": "3.114.14",
+    "tailwindcss": "3.4.17"
   }
 }

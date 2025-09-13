@@ -1,0 +1,12 @@
+:root {
+  --ivory:#F8F5EF;
+  --gold:#C8A15A;
+  --espresso:#4B3A2B;
+  --text:#1D1D1F;
+  --muted:#8E8E93;
+  --success:#8FBF6F;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow-sm:0 2px 6px rgba(0,0,0,.08);
+  --shadow:0 8px 24px rgba(0,0,0,.12);
+}
