@@ -1,0 +1,182 @@
+<script>
+// Add product click functionality to homepage
+document.addEventListener('DOMContentLoaded', function() {
+  // Find all product cards and add click handlers
+  const productCards = document.querySelectorAll('[onclick*="gtag"], .product-card, .bestseller-item');
+  
+  productCards.forEach((card, index) => {
+    // Make cards clickable
+    card.style.cursor = 'pointer';
+    card.style.transition = 'transform 0.2s, box-shadow 0.2s';
+    
+    // Add hover effects
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-2px)';
+      this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+      this.style.boxShadow = '';
+    });
+    
+    // Add click handler to show product details
+    card.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Extract product info from card
+      const productName = this.querySelector('strong, h3, .product-name')?.textContent || 'Sản phẩm';
+      const productPrice = this.querySelector('[onclick*="purchase"]')?.textContent || 'Liên hệ';
+      const productDesc = this.querySelector('div:not([onclick])')?.textContent || '';
+      
+      // Show product detail modal
+      showProductModal({
+        name: productName,
+        price: productPrice, 
+        description: productDesc,
+        id: 'product-' + index
+      });
+    });
+  });
+});
+
+// Product detail modal function
+function showProductModal(product) {
+  // Remove existing modal
+  const existingModal = document.getElementById('product-modal');
+  if (existingModal) existingModal.remove();
+  
+  // Create modal
+  const modal = document.createElement('div');
+  modal.id = 'product-modal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+  `;
+  
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease;
+    ">
+      <button onclick="closeProductModal()" style="
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      ">&times;</button>
+      
+      <h2 style="margin: 0 0 16px 0; color: #4B3A2B;">${product.name}</h2>
+      <div style="margin: 16px 0;">
+        <p style="font-size: 18px; color: #C8A15A; font-weight: bold;">${product.price}</p>
+        <p style="color: #666; margin: 12px 0;">${product.description}</p>
+      </div>
+      
+      <div style="display: flex; gap: 12px; margin-top: 20px;">
+        <button onclick="contactForProduct('${product.name}')" style="
+          flex: 1;
+          background: #C8A15A;
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 500;
+        ">Liên hệ đặt hàng</button>
+        
+        <button onclick="closeProductModal()" style="
+          background: white;
+          color: #4B3A2B;
+          border: 1px solid #C8A15A;
+          padding: 12px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+        ">Đóng</button>
+      </div>
+    </div>
+  `;
+  
+  // Add CSS animations
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  `;
+  if (!document.querySelector('#modal-styles')) {
+    style.id = 'modal-styles';
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(modal);
+  
+  // Close on backdrop click
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeProductModal();
+  });
+  
+  // Track modal view
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'view_item', {
+      item_id: product.id,
+      item_name: product.name,
+      currency: 'VND'
+    });
+  }
+}
+
+// Close modal function
+function closeProductModal() {
+  const modal = document.getElementById('product-modal');
+  if (modal) {
+    modal.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+// Contact function
+function contactForProduct(productName) {
+  const message = `Tôi muốn tìm hiểu thêm về sản phẩm: ${productName}`;
+  const phoneNumber = '1900'; // Update with actual phone
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  
+  // Track contact event
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'contact', {
+      method: 'whatsapp',
+      product: productName
+    });
+  }
+  
+  window.open(whatsappUrl, '_blank');
+  closeProductModal();
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeProductModal();
+});
+</script>
+
+<style>
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+</style>
