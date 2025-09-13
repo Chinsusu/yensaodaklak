@@ -84,32 +84,60 @@ class YenSaoCartUI {
   /**
    * Create cart icon in header
    */
+  /**
+   * Create cart icon in header
+   */
   createCartIcon() {
-    // Look for existing cart icon
-    let cartIcon = document.getElementById('cart-icon');
+    // Check if cart icon already exists in homepage
+    const existingCartLink = document.querySelector("a[href*="cart"], a[aria-label*="giỏ"], a[aria-label*="Giỏ"]");
+    
+    if (existingCartLink) {
+      // Use existing cart icon, just add click handler and count
+      existingCartLink.addEventListener("click", function(e) {
+        e.preventDefault();
+        if (window.yenSaoCartUI) {
+          window.yenSaoCartUI.toggleCart();
+        }
+      });
+      
+      // Add cart count to existing icon if not present
+      if (!existingCartLink.querySelector("[data-cart-count]")) {
+        const countSpan = document.createElement("span");
+        countSpan.className = "absolute -top-1 -right-1 bg-gold text-white text-xs font-medium px-1.5 py-0.5 rounded-full";
+        countSpan.setAttribute("data-cart-count", "");
+        countSpan.textContent = "0";
+        countSpan.style.display = "none";
+        existingCartLink.appendChild(countSpan);
+      }
+      return;
+    }
+    
+    // Only create new icon if none exists
+    let cartIcon = document.getElementById("cart-icon");
     
     if (!cartIcon) {
-      // Create cart icon HTML
+      // Create cart icon HTML with proper shopping cart SVG
       const iconHTML = `
         <div id="cart-icon" class="cart-icon" onclick="yenSaoCartUI.toggleCart()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 4V3C7 2.45 7.45 2 8 2H16C16.55 2 17 2.45 17 3V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 4H15V3H9V4ZM7 6V19H17V6H7Z"/>
+            <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
           </svg>
           <span class="cart-count" data-cart-count>0</span>
         </div>
       `;
       
       // Try to add to header or create floating icon
-      const header = document.querySelector('header, .header, nav');
+      const header = document.querySelector("header, .header, nav");
       if (header) {
-        header.insertAdjacentHTML('beforeend', iconHTML);
+        header.insertAdjacentHTML("beforeend", iconHTML);
       } else {
         // Create floating cart icon
-        document.body.insertAdjacentHTML('beforeend', `
+        document.body.insertAdjacentHTML("beforeend", `
           <div class="cart-icon-floating">${iconHTML}</div>
         `);
       }
     }
+  }
   }
 
   /**
