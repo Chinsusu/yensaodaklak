@@ -21,14 +21,6 @@ class YenSaoCartUI {
     
     console.log('🎨 Cart UI initialized');
     
-    // Debug: Check if elements were created
-    setTimeout(() => {
-      const sidebar = document.getElementById("cart-sidebar");
-      console.log("🔍 Debug: Cart sidebar exists:", !!sidebar);
-      if (sidebar) {
-        console.log("🔍 Debug: Sidebar HTML:", sidebar.innerHTML.substring(0, 100));
-      }
-    }, 1000);
   }
 
   /**
@@ -98,7 +90,7 @@ class YenSaoCartUI {
    */
   createCartIcon() {
     // Check if cart icon already exists in homepage
-    const existingCartLink = document.querySelector("a[href*="cart"], a[aria-label*="giỏ"], a[aria-label*="Giỏ"]");
+    const existingCartLink = document.querySelector('a[href*="cart"], a[aria-label*="giỏ"], a[aria-label*="Giỏ"]');
     
     if (existingCartLink) {
       // Use existing cart icon, just add click handler and count
