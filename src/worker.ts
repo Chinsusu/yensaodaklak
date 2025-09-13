@@ -134,7 +134,11 @@ app.get("/", async (c) => {
   // Inject script before closing body tag
   html = html.replace('</body>', scriptToInject + '\n</body>');
   
-  return c.html(html);
+    // Inject script before closing body tag (robust)
+  const marker = /<\/body\s*>/i;
+  if (marker.test(html)) html = html.replace(marker, scriptToInject + '</body>');
+  else html = html + scriptToInject;
+  return new Response(html, { headers: { 'Content-Type': 'text/html; charset=UTF-8', 'Cache-Control': 'no-store', 'X-Yensao-Injected': '1' }});
 })
 
 // Product detail page route
