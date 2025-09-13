@@ -19,30 +19,12 @@
   <!-- Preload critical images -->
   <link rel="preload" as="image" href="/images/hero-600.webp" media="(max-width: 768px)">
   <link rel="preload" as="image" href="/images/hero-800.webp" media="(min-width: 769px)">
+  <link rel="preload" as="image" href="/img/bg-ivory-paper-1600x1200.webp" media="(min-width: 768px)">
   
   <link rel="stylesheet" href="/tokens.css">
   <link rel="stylesheet" href="/styles.css">
   
   <style>
-    .hero-bg {
-      background-image: url("/images/background-800.webp");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-    
-    @media (min-width: 1200px) {
-      .hero-bg {
-        background-image: url("/images/background-1920.webp");
-      }
-    }
-    
-    @media (min-width: 800px) and (max-width: 1199px) {
-      .hero-bg {
-        background-image: url("/images/background-1200.webp");
-      }
-    }
-    
     .hero-image {
       position: relative;
       width: 100%;
@@ -66,7 +48,7 @@
       position: relative; 
       width: 100%; 
       padding-top: 100%; 
-      background: #f0eee9; 
+      background: rgba(240, 238, 233, 0.8); 
       border-radius: var(--radius); 
       box-shadow: var(--shadow-sm); 
     }
@@ -80,9 +62,20 @@
       color: #8E8E93; 
       font-size: 12px; 
     }
+    
+    /* Content sections với slight transparency để nền xuyên qua */
+    .content-section {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(1px);
+    }
+    
+    .content-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(2px);
+    }
   </style>
 </head>
-<body class="min-h-screen font-body text-text bg-ivory">
+<body class="min-h-screen font-body text-text site-bg">
   <!-- Navigation -->
   <header class="sticky top-0 z-50 bg-ivory/90 backdrop-blur border-b border-muted/20">
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
@@ -96,20 +89,20 @@
 
   <main class="mx-auto max-w-6xl px-4">
     <!-- Hero Section -->
-    <section class="py-10 md:py-16 hero-bg">
+    <section class="py-10 md:py-16">
       <div class="grid md:grid-cols-2 gap-8 items-center">
         <div>
-          <h1 class="font-heading text-3xl md:text-5xl text-espresso leading-tight">
+          <h1 class="font-heading text-3xl md:text-5xl text-espresso leading-tight drop-shadow-sm">
             Yến sào chuẩn tinh hoa – nguyên bản, tinh khiết, minh bạch
           </h1>
-          <p class="mt-4 text-[17px] text-espresso/80">
+          <p class="mt-4 text-[17px] text-espresso/80 drop-shadow-sm">
             Sản xuất và gia công: yến chưng hũ, yến thô, yến tinh sạch. Truy xuất COA theo lô, quy trình chuẩn an toàn.
           </p>
           <div class="mt-6 flex gap-3">
             <a href="#best" class="inline-flex items-center justify-center px-5 py-3 rounded-xl text-white bg-gold hover:opacity-90 shadow" onclick="gtag('event', 'hero_cta_explore')">
               Khám phá
             </a>
-            <a href="/process" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gold text-espresso hover:bg-gold/10" onclick="gtag('event', 'view_coa_hero')">
+            <a href="/process" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gold text-espresso hover:bg-gold/10 bg-white/80" onclick="gtag('event', 'view_coa_hero')">
               Xem COA
             </a>
           </div>
@@ -133,17 +126,17 @@
 
     <!-- Feature Trio -->
     <section class="py-6 grid sm:grid-cols-3 gap-4">
-      <a href="/process" class="block rounded-xl p-5 bg-white shadow hover:-translate-y-0.5 transition">
+      <a href="/process" class="block rounded-xl p-5 content-card shadow hover:-translate-y-0.5 transition">
         <div class="text-2xl">📦</div>
         <h3 class="mt-2 font-medium text-espresso">Nguồn gốc minh bạch</h3>
         <p class="mt-1 text-sm text-espresso/75">Mã lô, truy xuất COA, thông tin rõ ràng.</p>
       </a>
-      <a href="/process" class="block rounded-xl p-5 bg-white shadow hover:-translate-y-0.5 transition">
+      <a href="/process" class="block rounded-xl p-5 content-card shadow hover:-translate-y-0.5 transition">
         <div class="text-2xl">🧪</div>
         <h3 class="mt-2 font-medium text-espresso">Quy trình an toàn</h3>
         <p class="mt-1 text-sm text-espresso/75">Sơ chế sạch, chưng đúng kỹ thuật.</p>
       </a>
-      <a href="/guide" class="block rounded-xl p-5 bg-white shadow hover:-translate-y-0.5 transition">
+      <a href="/guide" class="block rounded-xl p-5 content-card shadow hover:-translate-y-0.5 transition">
         <div class="text-2xl">🥣</div>
         <h3 class="mt-2 font-medium text-espresso">Dưỡng chất tinh khiết</h3>
         <p class="mt-1 text-sm text-espresso/75">Hàm lượng yến thật, không phụ gia gây hại.</p>
@@ -153,11 +146,11 @@
     <!-- Bestseller Products -->
     <section id="best" class="py-8">
       <div class="flex items-baseline justify-between">
-        <h2 class="font-heading text-2xl md:text-3xl text-espresso">Bán chạy</h2>
+        <h2 class="font-heading text-2xl md:text-3xl text-espresso drop-shadow-sm">Bán chạy</h2>
         <a href="/category" class="text-espresso/70 hover:text-espresso">Xem tất cả →</a>
       </div>
       <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-        <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
+        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
           <div class="ratio-1-1"><span>Yến chưng hũ 70ml</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-chung-70ml', item_name: 'Yến chưng hũ 70 ml'})">Yến chưng hũ 70 ml</h3>
           <div class="mt-1 text-espresso/70 text-sm">Dung tích: 70 ml</div>
@@ -167,7 +160,7 @@
           </div>
         </article>
         
-        <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
+        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
           <div class="ratio-1-1"><span>Yến tinh sạch 50g</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-tinh-50g', item_name: 'Yến tinh sạch 50 g'})">Yến tinh sạch 50 g</h3>
           <div class="mt-1 text-espresso/70 text-sm">Khối lượng: 50 g</div>
@@ -177,7 +170,7 @@
           </div>
         </article>
 
-        <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
+        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
           <div class="ratio-1-1"><span>Yến thô 100g</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-tho-100g', item_name: 'Yến thô 100 g'})">Yến thô 100 g</h3>
           <div class="mt-1 text-espresso/70 text-sm">Khối lượng: 100 g</div>
@@ -187,7 +180,7 @@
           </div>
         </article>
 
-        <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
+        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
           <div class="ratio-1-1"><span>Yến chưng hũ 100ml</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'yen-chung-100ml', item_name: 'Yến chưng hũ 100 ml'})">Yến chưng hũ 100 ml</h3>
           <div class="mt-1 text-espresso/70 text-sm">Dung tích: 100 ml</div>
@@ -197,7 +190,7 @@
           </div>
         </article>
 
-        <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
+        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
           <div class="ratio-1-1"><span>Combo quà tặng</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'combo-gift', item_name: 'Combo quà tặng'})">Combo quà tặng</h3>
           <div class="mt-1 text-espresso/70 text-sm">Yến chưng + yến tinh</div>
@@ -207,7 +200,7 @@
           </div>
         </article>
 
-        <article class="rounded-xl bg-white shadow p-3 hover:-translate-y-0.5 transition">
+        <article class="rounded-xl content-card shadow p-3 hover:-translate-y-0.5 transition">
           <div class="ratio-1-1"><span>Set dùng thử</span></div>
           <h3 class="mt-3 text-espresso font-medium leading-tight cursor-pointer" onclick="gtag('event', 'select_item', {item_id: 'trial-set', item_name: 'Set dùng thử'})">Set dùng thử</h3>
           <div class="mt-1 text-espresso/70 text-sm">3 hũ x 70 ml</div>
@@ -220,7 +213,7 @@
     </section>
 
     <!-- Story/Process Teaser -->
-    <section class="py-8 bg-white rounded-xl shadow-sm p-6 md:p-8">
+    <section class="py-8 content-section rounded-xl shadow-sm p-6 md:p-8">
       <div class="grid md:grid-cols-2 gap-6 items-center">
         <div>
           <h2 class="font-heading text-2xl md:text-3xl text-espresso">Từ nguồn gốc đến thành phẩm</h2>
@@ -238,7 +231,7 @@
               <div><strong>Dinh dưỡng:</strong> Giữ nguyên thành phần tự nhiên</div>
             </div>
           </div>
-          <a href="/process" class="mt-6 inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gold text-espresso hover:bg-gold/10" onclick="gtag('event', 'view_coa', {lot_code: 'all'})">
+          <a href="/process" class="mt-6 inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gold text-espresso hover:bg-gold/10 bg-white/80" onclick="gtag('event', 'view_coa', {lot_code: 'all'})">
             Tra cứu COA
           </a>
         </div>
@@ -248,9 +241,9 @@
 
     <!-- FAQ Teaser -->
     <section class="py-8">
-      <h2 class="font-heading text-2xl md:text-3xl text-espresso">Câu hỏi thường gặp</h2>
+      <h2 class="font-heading text-2xl md:text-3xl text-espresso drop-shadow-sm">Câu hỏi thường gặp</h2>
       <div class="mt-4 space-y-3">
-        <details class="bg-white rounded-xl p-4 shadow-sm">
+        <details class="content-card rounded-xl p-4 shadow-sm">
           <summary class="font-medium text-espresso cursor-pointer" onclick="gtag('event', 'faq_open', {question: 'Yến sào có tác dụng gì?'})">
             Yến sào có tác dụng gì?
           </summary>
@@ -259,7 +252,7 @@
           </div>
         </details>
         
-        <details class="bg-white rounded-xl p-4 shadow-sm">
+        <details class="content-card rounded-xl p-4 shadow-sm">
           <summary class="font-medium text-espresso cursor-pointer" onclick="gtag('event', 'faq_open', {question: 'Cách bảo quản yến sào?'})">
             Cách bảo quản yến sào?
           </summary>
@@ -268,7 +261,7 @@
           </div>
         </details>
         
-        <details class="bg-white rounded-xl p-4 shadow-sm">
+        <details class="content-card rounded-xl p-4 shadow-sm">
           <summary class="font-medium text-espresso cursor-pointer" onclick="gtag('event', 'faq_open', {question: 'COA là gì?'})">
             COA là gì?
           </summary>
@@ -284,7 +277,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="mt-16 bg-white border-t border-muted/20">
+  <footer class="mt-16 content-section border-t border-muted/20">
     <div class="mx-auto max-w-6xl px-4 py-8">
       <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
         <div>

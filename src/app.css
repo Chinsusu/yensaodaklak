@@ -2,4 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
-body { color: theme('colors.text'); background: theme('colors.ivory'); }
+body { color: theme(colors.text); background: theme(colors.ivory); }
+
+@layer base {
+  /* Nền phủ toàn trang, không bị giới hạn bởi container */
+  .site-bg::before {
+    content: "";
+    position: fixed; 
+    inset: 0; 
+    z-index: -1; 
+    pointer-events: none;
+    background-image: image-set(
+      url("/img/bg-ivory-paper-900x1400.webp") 1x,
+      url("/img/bg-ivory-paper-1600x1200.webp") 2x,
+      url("/img/bg-ivory-paper-2400x1600.webp") 3x
+    );
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-color: #F8F5EF; /* fallback */
+  }
+  
+  /* iOS tránh jank với background-attachment: fixed */
+  @media (min-width: 1024px) {
+    .site-bg::before { 
+      background-attachment: fixed; 
+    }
+  }
+  
+  /* Tuỳ chọn: trộn texture noise lặp để nền "có hạt" hơn */
+  .site-bg-textured::before {
+    background-image:
+      radial-gradient(1200px 800px at 20% 10%, rgba(200,161,90,.08), transparent 60%),
+      radial-gradient(1000px 700px at 80% 30%, rgba(75,58,43,.04), transparent 60%),
+      url("/img/bg-paper-noise-256.png"),
+      image-set(
+        url("/img/bg-ivory-paper-900x1400.webp") 1x,
+        url("/img/bg-ivory-paper-1600x1200.webp") 2x,
+        url("/img/bg-ivory-paper-2400x1600.webp") 3x
+      );
+    background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+    background-size: auto, auto, 256px 256px, cover;
+    background-position: 20% 10%, 80% 30%, 0 0, top center;
+  }
+}
